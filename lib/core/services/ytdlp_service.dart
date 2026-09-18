@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:extractor/extractor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/video_info.dart' as vidbee;
@@ -320,22 +321,6 @@ class YtDlpService {
           ) ??
           _defaultAudioQuality;
 
-      // 确定下载格式
-      String format;
-      if (task.type == vidbee.DownloadType.audio) {
-        // 音频下载：使用最佳音频
-        format = 'bestaudio/best';
-      } else if (task.selectedFormat != null) {
-        // 视频下载：如果选择了格式，确保同时下载音频
-        // 格式为：{视频格式}+bestaudio/best
-        format = '${task.selectedFormat!.formatId}+bestaudio/best';
-      } else {
-        // 默认：最佳视频+最佳音频
-        format = 'bestvideo+bestaudio/best';
-      }
-
-      AppLogger.debug('格式: $format');
-
       // 使用VidBee_前缀 + 视频标题作为文件名，既保留标题又避免问题
       final outputTemplate = 'VidBee_%(title)s.%(ext)s';
       AppLogger.debug('输出文件名: $outputTemplate');
@@ -345,21 +330,16 @@ class YtDlpService {
       final downloadUrl = built.url;
       final customOptions = built.options;
 
-      final request = DownloadRequest(
-        url: downloadUrl,
-        outputPath: downloadPath,
+      final request = createDownloadRequest(
+        task: task,
+        downloadUrl: downloadUrl,
+        downloadPath: downloadPath,
         outputTemplate: outputTemplate,
-        format: format,
-        processId: task.id,
-        embedThumbnail: true,
-        embedMetadata: true,
-        extractAudio: task.type == vidbee.DownloadType.audio,
-        audioFormat: task.type == vidbee.DownloadType.audio ? 'mp3' : null,
-        audioQuality: task.type == vidbee.DownloadType.audio
-            ? configuredAudioQuality
-            : null,
-        customOptions: customOptions.isEmpty ? null : customOptions,
+        configuredAudioQuality: configuredAudioQuality,
+        customOptions: customOptions,
       );
+
+      AppLogger.debug('下载格式: ${request.format}, 嵌入封面: ${request.embedThumbnail}');
 
       final result = await _youtubeDL.download(request);
 
@@ -396,6 +376,59 @@ class YtDlpService {
       AppLogger.error('下载异常', e);
       return null;
     }
+  }
+
+  /// 构建 yt-dlp [DownloadRequest]。
+  ///
+  /// 修复视频在 QQ 频道等平台播放时拉伸变扁的关键设计：
+  /// 1. [embedThumbnail] 仅对纯音频下载启用；视频下载严禁嵌入缩略图。
+  ///    若视频启用 --embed-thumbnail，ffmpeg 会将缩略图作为包含封面图像的
+  ///    attached_pic 视频流封装进 MP4。当视频为竖屏(如 9:16)而封面为横屏(如 16:9)时，
+  ///    QQ 频道等富媒体解析器会误读封面流的 16:9 分辨率作为消息卡片尺寸，
+  ///    导致播放器在横屏卡片中播放竖屏视频，画面被强行拉伸变扁。
+  /// 2. 视频下载时向 customOptions 注入 `--merge-output-format mp4`，
+  ///    避免 yt-dlp 默认将分离流合并为 mkv 导致容器元数据与比例解析异常。
+  @visibleForTesting
+  static DownloadRequest createDownloadRequest({
+    required vidbee.DownloadTask task,
+    required String downloadUrl,
+    required String downloadPath,
+    required String outputTemplate,
+    required int configuredAudioQuality,
+    Map<String, String>? customOptions,
+  }) {
+    final isAudio = task.type == vidbee.DownloadType.audio;
+    final effectiveOptions = <String, String>{
+      ...?customOptions,
+    };
+
+    // 确定下载格式
+    String format;
+    if (isAudio) {
+      format = 'bestaudio/best';
+    } else if (task.selectedFormat != null) {
+      format = '${task.selectedFormat!.formatId}+bestaudio/best';
+    } else {
+      format = 'bestvideo+bestaudio/best';
+    }
+
+    if (!isAudio) {
+      effectiveOptions['--merge-output-format'] = 'mp4';
+    }
+
+    return DownloadRequest(
+      url: downloadUrl,
+      outputPath: downloadPath,
+      outputTemplate: outputTemplate,
+      format: format,
+      processId: task.id,
+      embedThumbnail: isAudio,
+      embedMetadata: true,
+      extractAudio: isAudio,
+      audioFormat: isAudio ? 'mp3' : null,
+      audioQuality: isAudio ? configuredAudioQuality : null,
+      customOptions: effectiveOptions.isEmpty ? null : effectiveOptions,
+    );
   }
 
   /// 解析下载产物的真实路径。
