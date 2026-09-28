@@ -49,3 +49,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/build/
+
+# Signing secrets (never commit)
+android/key.properties
+*.jks
+keystore.b64
