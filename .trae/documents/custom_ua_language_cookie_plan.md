@@ -15,7 +15,7 @@
 ### 3. Cookie提取功能
 - ✅ 基本的Cookie存储和管理
 - ❌ 无从浏览器提取Cookie的功能
-- ❌ 无类似电脑版VidBee的Firefox Cookie提取功能
+- ❌ 无类似电脑版QvaSave Pro的Firefox Cookie提取功能
 
 ## 实现计划
 

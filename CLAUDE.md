@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-VidBee_Flutter is an Android video downloader built on Flutter, wrapping the `yt-dlp` engine (via the `extractor` plugin) for 1000+ sites. State is managed with Riverpod, persistence with Drift/SQLite, UI with Material 3. See `AGENTS.md` for commit/PR conventions and coding style.
+QvaSave Pro is an Android video downloader built on Flutter, wrapping the `yt-dlp` engine (via the `extractor` plugin) for 1000+ sites. State is managed with Riverpod, persistence with Drift/SQLite, UI with Material 3. See `AGENTS.md` for commit/PR conventions and coding style.
 
 ## Commands
 
@@ -47,7 +47,7 @@ Cookies are stored **per domain**, not globally. `CookieService.importNetscapeCo
 
 ### Database (`lib/core/database/`)
 
-Drift DB (`vidbee.db`) with table `DownloadHistory`. `schemaVersion = 3` with additive `onUpgrade` (indexes on `downloaded_at`/`playlist_id` at v2; v3 removes unused `subscription_id` from the Drift schema only — old DBs may still have the orphan column, which is harmless). Bump the version and extend `onUpgrade` if you change a table.
+Drift DB (`qvasave.db`) with table `DownloadHistory`. `schemaVersion = 3` with additive `onUpgrade` (indexes on `downloaded_at`/`playlist_id` at v2; v3 removes unused `subscription_id` from the Drift schema only — old DBs may still have the orphan column, which is harmless). Bump the version and extend `onUpgrade` if you change a table.
 
 ### Settings persistence is split (intentional, but watch for it)
 

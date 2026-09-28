@@ -118,7 +118,7 @@ class _ImportCookieCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   onTap: () async {
                     final uri = Uri.parse(
-                      'https://github.com/Autsunset/VidBee_Flutter/blob/main/COOKIES_GUIDE.md',
+                      'https://github.com/Rexxar0102/QvaSave_Pro/blob/main/COOKIES_GUIDE.md',
                     );
                     if (await canLaunchUrl(uri)) {
                       await launchUrl(

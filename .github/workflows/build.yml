@@ -72,7 +72,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: build/app/outputs/flutter-apk/*.apk
-          name: VidBee_Flutter ${{ github.ref_name }}
+          name: QvaSave Pro ${{ github.ref_name }}
           draft: false
           prerelease: false
           body_path: release_notes.md

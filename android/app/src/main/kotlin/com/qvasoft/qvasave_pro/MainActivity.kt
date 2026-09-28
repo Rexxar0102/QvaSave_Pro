@@ -1,4 +1,4 @@
-package com.vidbee.vidbee_flutter
+package com.qvasoft.qvasave_pro
 
 import android.content.Intent
 import android.media.MediaScannerConnection
@@ -13,9 +13,9 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
 class MainActivity : FlutterActivity() {
-    private val mediaScannerChannel = "com.vidbee.media_scanner"
-    private val appUpdateChannel = "com.vidbee.app_update"
-    private val fileOpenerChannel = "com.vidbee.file_opener"
+    private val mediaScannerChannel = "com.qvasoft.qvasave_pro.media_scanner"
+    private val appUpdateChannel = "com.qvasoft.qvasave_pro.app_update"
+    private val fileOpenerChannel = "com.qvasoft.qvasave_pro.file_opener"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

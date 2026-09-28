@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
-import 'package:vidbee_flutter/core/models/video_info.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
+import 'package:qvasave_pro/core/models/video_info.dart';
 
 void main() {
   DownloadTask base() => DownloadTask(

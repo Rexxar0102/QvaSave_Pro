@@ -192,6 +192,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       return Text(AppLocalizations.of(context)!.noAvailableFormat);
     }
 
+    final loc = AppLocalizations.of(context)!;
     final url = resolveDownloadUrl(
       parsedUrl: _parsedUrl,
       webpageUrl: videoInfo.webpageUrl,
@@ -203,9 +204,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _isAudioOnly
-              ? AppLocalizations.of(context)!.selectAudioQuality
-              : AppLocalizations.of(context)!.selectVideoQuality,
+          _isAudioOnly ? loc.selectAudioQuality : loc.selectVideoQuality,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
@@ -225,7 +224,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_getFormatLabel(format)),
+                  Text(_getFormatLabel(format, loc)),
                   if (requiresLogin) ...[
                     const SizedBox(width: 4),
                     Icon(
@@ -254,7 +253,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Text(
-              AppLocalizations.of(context)!.highQualityRequiresLogin,
+              loc.highQualityRequiresLogin,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.error,
               ),
@@ -264,7 +263,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     );
   }
 
-  String _getFormatLabel(VideoFormat format) {
+  String _getFormatLabel(VideoFormat format, AppLocalizations loc) {
     final parts = <String>[];
 
     // 优先显示分辨率或码率
@@ -275,7 +274,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       } else if (format.formatNote != null) {
         parts.add(format.formatNote!);
       } else {
-        parts.add('音频');
+        parts.add(loc.audio);
       }
     } else {
       // 视频格式：显示分辨率和比特率
@@ -324,7 +323,9 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     // 自动补全 URL
     url = normalizeVideoUrl(url);
     if (!isValidHttpUrl(url)) {
-      AppLogger.error('解析前 URL 无效: raw=${_urlController.text}, normalized=$url');
+      AppLogger.error(
+        'Invalid URL before parsing: raw=${_urlController.text}, normalized=$url',
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -335,7 +336,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       );
       return;
     }
-    AppLogger.info('用户开始解析 URL: $url');
+    AppLogger.info('User started parsing URL: $url');
 
     ref.read(isLoadingVideoInfoProvider.notifier).state = true;
     ref.read(currentVideoInfoProvider.notifier).state = null;
@@ -360,7 +361,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     final domainHasCookie = await _cookieService.hasCookie(domain);
     if (videoInfo != null) {
       AppLogger.info(
-        '用户解析成功: domain=$domain, hasCookie=$domainHasCookie, '
+        'User parsed successfully: domain=$domain, hasCookie=$domainHasCookie, '
         'formats=${videoInfo.formats.length}, title=${videoInfo.title}',
       );
     }
@@ -386,7 +387,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       } else {
         final hasCookie = await _cookieService.hasCookie(domain);
         AppLogger.error(
-          '用户解析失败: domain=$domain, hasCookie=$hasCookie, url=$url',
+          'User parse failed: domain=$domain, hasCookie=$hasCookie, url=$url',
         );
         if (!mounted) return;
         final loc = AppLocalizations.of(context)!;
@@ -468,7 +469,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     );
     if (!isValidHttpUrl(url)) {
       AppLogger.error(
-        '下载前 URL 无效: parsed=$_parsedUrl, '
+        'Invalid URL before download: parsed=$_parsedUrl, '
         'webpage=${videoInfo.webpageUrl}, input=${_urlController.text}',
       );
       if (!mounted) return;
@@ -481,7 +482,7 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
       );
       return;
     }
-    AppLogger.debug('提交下载任务: $url');
+    AppLogger.debug('Submitting download task: $url');
 
     final downloadService = ref.read(downloadServiceProvider);
     final downloadPath = ref.read(downloadPathProvider);

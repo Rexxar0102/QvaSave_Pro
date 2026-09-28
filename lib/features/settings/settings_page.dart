@@ -36,7 +36,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _videoQuality = '1080p';
   String _audioQuality = '3';
   ThemeMode _themeMode = ThemeMode.system;
-  String _language = '简体中文';
+  String _language = 'Español';
   String _customUA = '';
   final CookieService _cookieService = CookieService();
   Map<String, String> _cookies = {};
@@ -80,7 +80,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             : AppConstants.appVersion;
       });
     } catch (e) {
-      AppLogger.error('加载应用版本失败', e);
+      AppLogger.error('Failed to load app version', e);
     }
   }
 
@@ -100,7 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ? ref.read(languageProvider)
           : resolveAppLanguageCode(savedLanguage);
       ref.read(languageProvider.notifier).state = languageCode;
-      _language = getLanguageByCode(languageCode)?.nativeName ?? 'English';
+      _language = getLanguageByCode(languageCode)?.nativeName ?? 'Español';
       // 下载路径从 provider 读取
     });
   }
@@ -126,7 +126,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         });
       }
     } catch (e) {
-      AppLogger.error('加载版本信息失败', e);
+      AppLogger.error('Failed to load version info', e);
     }
   }
 
@@ -256,7 +256,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         await _downloadAndInstallAppUpdate(release);
       }
     } catch (e) {
-      AppLogger.error('检查应用更新失败', e);
+      AppLogger.error('Failed to check for app updates', e);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -304,7 +304,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(loc.installPackageReady)));
     } on PlatformException catch (e) {
-      AppLogger.error('安装应用更新失败', e);
+      AppLogger.error('Failed to install app update', e);
       if (!mounted) return;
       if (e.code == 'INSTALL_PERMISSION_REQUIRED') {
         await showDialog<void>(
@@ -329,7 +329,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
       }
     } catch (e) {
-      AppLogger.error('下载应用更新失败', e);
+      AppLogger.error('Failed to download app update', e);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -894,7 +894,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         SettingsSectionHeader(loc.about),
         ListTile(
           leading: const Icon(Icons.info_outlined),
-          title: Text('${loc.about} VidBee_Flutter'),
+          title: Text('${loc.about} QvaSave Pro'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _showAboutDialog(context),
         ),
@@ -1227,7 +1227,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           try {
             await entity.delete(recursive: true);
           } catch (e) {
-            AppLogger.error('删除缓存项失败: ${entity.path}', e);
+            AppLogger.error('Failed to delete cache item: ${entity.path}', e);
           }
         }
       }
@@ -1240,7 +1240,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       return true;
     } catch (e) {
-      AppLogger.error('清理缓存失败', e);
+      AppLogger.error('Failed to clear cache', e);
       return false;
     }
   }
@@ -1441,6 +1441,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         Text(
                           '${loc.version} $_appVersionLabel',
                           style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        Text(
+                          AppConstants.companyName,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ],
                     ),

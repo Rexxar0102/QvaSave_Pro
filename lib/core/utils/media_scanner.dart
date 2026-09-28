@@ -7,16 +7,16 @@ import 'app_logger.dart';
 /// 媒体扫描工具类
 class MediaScanner {
   static const MethodChannel _channel = MethodChannel(
-    'com.vidbee.media_scanner',
+    'com.qvasoft.qvasave_pro.media_scanner',
   );
 
   /// 扫描单个文件
   static Future<void> scanFile(String filePath) async {
     try {
       await _channel.invokeMethod('scanFile', {'filePath': filePath});
-      AppLogger.debug('媒体扫描成功: $filePath');
+      AppLogger.debug('Media scan succeeded: $filePath');
     } catch (e) {
-      AppLogger.error('媒体扫描失败', e);
+      AppLogger.error('Media scan failed', e);
     }
   }
 }

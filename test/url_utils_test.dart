@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/utils/url_utils.dart';
+import 'package:qvasave_pro/core/utils/url_utils.dart';
 
 void main() {
   group('isValidHttpUrl', () {

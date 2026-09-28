@@ -221,13 +221,17 @@ class DownloadService {
     try {
       await _notificationService.showDownloadProgress(
         taskId: task.id,
-        title: task.title ?? '正在下载...',
+        title: task.title ?? 'Downloading...',
         progress: progress,
         speed: details.currentSpeed,
         eta: details.eta,
       );
     } catch (e, stackTrace) {
-      AppLogger.error('更新下载进度通知失败', e, stackTrace);
+      AppLogger.error(
+        'Failed to update download progress notification',
+        e,
+        stackTrace,
+      );
     }
   }
 
@@ -235,10 +239,14 @@ class DownloadService {
     try {
       await _notificationService.showDownloadComplete(
         taskId: task.id,
-        title: task.title ?? '视频',
+        title: task.title ?? 'Video',
       );
     } catch (e, stackTrace) {
-      AppLogger.error('显示下载完成通知失败', e, stackTrace);
+      AppLogger.error(
+        'Failed to show download complete notification',
+        e,
+        stackTrace,
+      );
     }
   }
 
@@ -249,11 +257,15 @@ class DownloadService {
     try {
       await _notificationService.showDownloadError(
         taskId: task.id,
-        title: task.title ?? '视频',
+        title: task.title ?? 'Video',
         error: error,
       );
     } catch (e, stackTrace) {
-      AppLogger.error('显示下载失败通知失败', e, stackTrace);
+      AppLogger.error(
+        'Failed to show download error notification',
+        e,
+        stackTrace,
+      );
     }
   }
 
@@ -261,7 +273,7 @@ class DownloadService {
     try {
       await _notificationService.cancelNotification(taskId);
     } catch (e, stackTrace) {
-      AppLogger.error('取消下载通知失败', e, stackTrace);
+      AppLogger.error('Failed to cancel download notification', e, stackTrace);
     }
   }
 
@@ -359,7 +371,7 @@ class DownloadService {
           if (size > 0) return size;
         }
       } catch (e) {
-        AppLogger.debug('读取下载文件大小失败: $path, $e');
+        AppLogger.debug('Failed to read download file size: $path, $e');
       }
     }
     if (fallback != null && fallback > 0) return fallback;
@@ -389,11 +401,19 @@ class DownloadService {
     try {
       final result = await _ytDlpService.startDownload(updatedTask);
       if (result == null) {
-        await _failTaskWithoutOutput(updatedTask, '下载进程结束但没有返回输出文件');
+        await _failTaskWithoutOutput(
+          updatedTask,
+          'Download process ended without returning an output file',
+        );
       } else if (isYtDlpTemplatePath(result)) {
         // 防御：底层不应再返回模板路径；若仍返回则视为失败，避免污染历史。
-        AppLogger.error('下载返回未展开的模板路径，忽略: $result');
-        await _failTaskWithoutOutput(updatedTask, '下载完成但未能解析真实文件名');
+        AppLogger.error(
+          'Download returned an unexpanded template path, ignoring: $result',
+        );
+        await _failTaskWithoutOutput(
+          updatedTask,
+          'Download completed but the actual file name could not be resolved',
+        );
       } else {
         // startDownload 返回了真实文件路径。完成事件可能已经（或尚未）触发，
         // 因此既写入活动任务，也尝试更新已落库的历史记录。
@@ -433,12 +453,12 @@ class DownloadService {
     } catch (e, stackTrace) {
       // 防御性处理：startDownload 抛出未预期异常时，避免任务卡在 downloading
       // 状态而长期占用并发槽位，导致整个队列停摆。
-      AppLogger.error('下载任务执行异常', e, stackTrace);
+      AppLogger.error('Download task execution exception', e, stackTrace);
       final currentTask = _activeTasks[task.id];
       if (currentTask != null) {
         final failedTask = currentTask.copyWith(
           status: DownloadStatus.error,
-          error: currentTask.error ?? '下载执行异常: $e',
+          error: currentTask.error ?? 'Download execution exception: $e',
         );
         _activeTasks[task.id] = failedTask;
         _notifyTaskUpdate(failedTask);
@@ -447,7 +467,7 @@ class DownloadService {
         await _reconcilePrematureCompletion(
           updatedTask.copyWith(
             status: DownloadStatus.error,
-            error: updatedTask.error ?? '下载执行异常: $e',
+            error: updatedTask.error ?? 'Download execution exception: $e',
           ),
         );
       }
@@ -491,7 +511,7 @@ class DownloadService {
       unawaited(
         _showDownloadErrorNotification(
           failedTask,
-          failedTask.error ?? '下载未生成可用文件',
+          failedTask.error ?? 'Download did not produce a usable file',
         ),
       );
     }
@@ -703,7 +723,9 @@ class DownloadService {
               interruptedTasks.add(
                 task.copyWith(
                   status: DownloadStatus.error,
-                  error: task.error ?? '应用关闭或下载进程中断',
+                  error:
+                      task.error ??
+                      'App was closed or the download process was interrupted',
                 ),
               );
               break;
@@ -713,7 +735,7 @@ class DownloadService {
               break;
           }
         } catch (e) {
-          AppLogger.debug('跳过无法恢复的未完成任务条目: $e');
+          AppLogger.debug('Skipping irrecoverable incomplete task entry: $e');
         }
       }
 
@@ -725,7 +747,11 @@ class DownloadService {
         await _saveToHistory(task);
       }
     } catch (e, stackTrace) {
-      AppLogger.error('恢复未完成任务失败，已清空待恢复队列', e, stackTrace);
+      AppLogger.error(
+        'Failed to restore incomplete tasks, cleared the restore queue',
+        e,
+        stackTrace,
+      );
       await prefs.remove(_prefIncompleteTasks);
       return;
     }

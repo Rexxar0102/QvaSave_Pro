@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/utils/app_logger.dart';
+import 'package:qvasave_pro/core/utils/app_logger.dart';
 
 void main() {
   late Directory tempDir;
 
   setUp(() async {
-    tempDir = await Directory.systemTemp.createTemp('vidbee_logger_test_');
+    tempDir = await Directory.systemTemp.createTemp('qvasoft_logger_test_');
     await AppLogger.resetForTesting(logDirectoryPath: tempDir.path);
     await AppLogger.initialize();
   });

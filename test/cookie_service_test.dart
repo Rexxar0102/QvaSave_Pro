@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vidbee_flutter/core/services/cookie_service.dart';
+import 'package:qvasave_pro/core/services/cookie_service.dart';
 
 void main() {
   late Directory tempDir;
@@ -11,7 +11,7 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    tempDir = await Directory.systemTemp.createTemp('vidbee_cookie_test_');
+    tempDir = await Directory.systemTemp.createTemp('qvasoft_cookie_test_');
     PathProviderPlatform.instance = FakePathProviderPlatform(tempDir.path);
     service = CookieService();
   });

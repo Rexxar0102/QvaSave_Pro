@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/models/download_task.dart';
 import '../i18n/app_localizations.dart';
+import '../theme/app_theme.dart';
 
 /// 任务缩略图：带占位与错误回退，下载页与历史页共用（尺寸可配）。
 ///
@@ -58,21 +59,63 @@ class TaskStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (Color color, String label) = switch (status) {
-      DownloadStatus.pending => (Colors.orange, loc.pendingTask),
-      DownloadStatus.downloading => (Colors.blue, loc.downloadingTask),
-      DownloadStatus.processing => (Colors.purple, loc.processingTask),
-      DownloadStatus.completed => (Colors.green, loc.completedTask),
-      DownloadStatus.error => (Colors.red, loc.failedTask),
-      DownloadStatus.cancelled => (Colors.grey, loc.cancelledTask),
+    final Color color = switch (status) {
+      DownloadStatus.pending => const Color(0xFFB08D2E),
+      DownloadStatus.downloading => QvaColors.olive,
+      DownloadStatus.processing => const Color(0xFF85706B),
+      DownloadStatus.completed => QvaColors.glow,
+      DownloadStatus.error => const Color(0xFFD24D3C),
+      DownloadStatus.cancelled => const Color(0xFF8E8E92),
+    };
+    final String label = switch (status) {
+      DownloadStatus.pending => loc.pendingTask,
+      DownloadStatus.downloading => loc.downloadingTask,
+      DownloadStatus.processing => loc.processingTask,
+      DownloadStatus.completed => loc.completedTask,
+      DownloadStatus.error => loc.failedTask,
+      DownloadStatus.cancelled => loc.cancelledTask,
     };
 
-    return Chip(
-      label: Text(label),
-      backgroundColor: color.withValues(alpha: 0.1),
-      labelStyle: TextStyle(color: color),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
+    return _TagPill(label: label, color: color);
+  }
+}
+
+class TaskTypeChip extends StatelessWidget {
+  const TaskTypeChip({super.key, required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return _TagPill(label: label, color: color);
+  }
+}
+
+/// 设计稿风格的胶囊标签：低透明度底色 + 圆角 8 + 11px 加粗小字。
+class _TagPill extends StatelessWidget {
+  const _TagPill({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+          color: color,
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
-import 'package:vidbee_flutter/core/models/video_info.dart';
-import 'package:vidbee_flutter/core/services/ytdlp_service.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
+import 'package:qvasave_pro/core/models/video_info.dart';
+import 'package:qvasave_pro/core/services/ytdlp_service.dart';
 
 void main() {
   group('YtDlpService.createDownloadRequest', () {
@@ -19,7 +19,7 @@ void main() {
         task: task,
         downloadUrl: task.url,
         downloadPath: '/storage/emulated/0/Download',
-        outputTemplate: 'VidBee_%(title)s.%(ext)s',
+        outputTemplate: 'QvaSave_%(title)s.%(ext)s',
         configuredAudioQuality: 3,
         customOptions: {'--referer': 'https://www.bilibili.com'},
       );
@@ -54,7 +54,7 @@ void main() {
         task: task,
         downloadUrl: task.url,
         downloadPath: '/storage/emulated/0/Download',
-        outputTemplate: 'VidBee_%(title)s.%(ext)s',
+        outputTemplate: 'QvaSave_%(title)s.%(ext)s',
         configuredAudioQuality: 3,
       );
 
@@ -77,7 +77,7 @@ void main() {
         task: task,
         downloadUrl: task.url,
         downloadPath: '/storage/emulated/0/Download',
-        outputTemplate: 'VidBee_%(title)s.%(ext)s',
+        outputTemplate: 'QvaSave_%(title)s.%(ext)s',
         configuredAudioQuality: 2,
       );
 

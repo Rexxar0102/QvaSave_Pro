@@ -88,7 +88,7 @@ class PermissionHelper {
     if (downloadsDir != null) return downloadsDir.path;
 
     final documentsDir = await getApplicationDocumentsDirectory();
-    return '${documentsDir.path}/VidBee';
+    return '${documentsDir.path}/QvaSave Pro';
   }
 
   /// 检查目录是否可写，必要时创建目录。
@@ -100,7 +100,7 @@ class PermissionHelper {
       }
 
       final testFile = File(
-        '${dir.path}${Platform.pathSeparator}.vidbee_write_test_${DateTime.now().microsecondsSinceEpoch}',
+        '${dir.path}${Platform.pathSeparator}.qvasoft_write_test_${DateTime.now().microsecondsSinceEpoch}',
       );
       await testFile.writeAsString('ok', flush: true);
       await testFile.delete();
@@ -159,14 +159,14 @@ class PermissionHelper {
               Navigator.of(context).pop();
               onDenied?.call();
             },
-            child: const Text('取消'),
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
               onGranted();
             },
-            child: const Text('去设置'),
+            child: const Text('Go to settings'),
           ),
         ],
       ),

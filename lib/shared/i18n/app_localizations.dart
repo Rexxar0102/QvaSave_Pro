@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_localizations_en.dart';
-import 'app_localizations_ja.dart';
-import 'app_localizations_ko.dart';
-import 'app_localizations_zh.dart';
+import 'app_localizations_es.dart';
 
 /// 应用本地化类
 class AppLocalizations {
@@ -21,12 +19,7 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  static const List<Locale> supportedLocales = [
-    Locale('zh'),
-    Locale('en'),
-    Locale('ja'),
-    Locale('ko'),
-  ];
+  static const List<Locale> supportedLocales = [Locale('es'), Locale('en')];
 
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
     delegate,
@@ -36,6 +29,7 @@ class AppLocalizations {
   ];
 
   String get appTitle => _translate('appTitle');
+  String get home => _translate('home');
   String get addUrl => _translate('addUrl');
   String get download => _translate('download');
   String get history => _translate('history');
@@ -280,18 +274,55 @@ class AppLocalizations {
   String get restoreDefault => _translate('restoreDefault');
   String get uaRestoredDefault => _translate('uaRestoredDefault');
 
+  String get cannotConnectToServer => _translate('cannotConnectToServer');
+  String get checkingLoginStatus => _translate('checkingLoginStatus');
+  String get clearingOldCookies => _translate('clearingOldCookies');
+  String get connectionClosed => _translate('connectionClosed');
+  String get connectionRefused => _translate('connectionRefused');
+  String get connectionTimeout => _translate('connectionTimeout');
+  String get cookieSavedDownloadBilibili =>
+      _translate('cookieSavedDownloadBilibili');
+  String get dnsError => _translate('dnsError');
+  String get endTime => _translate('endTime');
+  String get errorCodeLabel => _translate('errorCodeLabel');
+  String get exportFile => _translate('exportFile');
+  String get getCookieFailed => _translate('getCookieFailed');
+  String get initializingWebView => _translate('initializingWebView');
+  String get loadFailed => _translate('loadFailed');
+  String get loadFailedWithReason => _translate('loadFailedWithReason');
+  String get loadingLoginPage => _translate('loadingLoginPage');
+  String get loadingPage => _translate('loadingPage');
+  String get loginAgain => _translate('loginAgain');
+  String get loginBilibiliAccount => _translate('loginBilibiliAccount');
+  String get loginBilibiliTitle => _translate('loginBilibiliTitle');
+  String get loginNotDetected => _translate('loginNotDetected');
+  String get loginSuccessCookiesSaved => _translate('loginSuccessCookiesSaved');
+  String get loginToSite => _translate('loginToSite');
+  String get loggedInBilibili => _translate('loggedInBilibili');
+  String get logsCopied => _translate('logsCopied');
+  String get logsExportFailed => _translate('logsExportFailed');
+  String get logsFileGenerated => _translate('logsFileGenerated');
+  String get logsLoadFailed => _translate('logsLoadFailed');
+  String get noCookiesDetected => _translate('noCookiesDetected');
+  String get noLogsInRange => _translate('noLogsInRange');
+  String get pleaseLoginThenDetect => _translate('pleaseLoginThenDetect');
+  String get reloading => _translate('reloading');
+  String get saveCookie => _translate('saveCookie');
+  String get saveCookieFailed => _translate('saveCookieFailed');
+  String get savedBilibiliCookie => _translate('savedBilibiliCookie');
+  String get serverNoResponse => _translate('serverNoResponse');
+  String get shareLogsSubject => _translate('shareLogsSubject');
+  String get startTime => _translate('startTime');
+  String get unknownError => _translate('unknownError');
+
   String _translate(String key) {
     switch (locale.languageCode) {
-      case 'zh':
-        return AppLocalizationsZh().getLocalizedValue(key);
+      case 'es':
+        return AppLocalizationsEs().getLocalizedValue(key);
       case 'en':
         return AppLocalizationsEn().getLocalizedValue(key);
-      case 'ja':
-        return AppLocalizationsJa().getLocalizedValue(key);
-      case 'ko':
-        return AppLocalizationsKo().getLocalizedValue(key);
       default:
-        return AppLocalizationsZh().getLocalizedValue(key);
+        return AppLocalizationsEs().getLocalizedValue(key);
     }
   }
 }
@@ -302,7 +333,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) {
-    return ['zh', 'en', 'ja', 'ko'].contains(locale.languageCode);
+    return ['es', 'en'].contains(locale.languageCode);
   }
 
   @override

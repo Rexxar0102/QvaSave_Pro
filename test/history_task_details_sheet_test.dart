@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
-import 'package:vidbee_flutter/features/history/history_page.dart';
-import 'package:vidbee_flutter/shared/i18n/app_localizations.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
+import 'package:qvasave_pro/features/history/history_page.dart';
+import 'package:qvasave_pro/shared/i18n/app_localizations.dart';
 
 void main() {
   testWidgets(
@@ -27,11 +27,11 @@ void main() {
         savedFileName: 'video.mp4',
       );
 
-      final loc = AppLocalizations(const Locale('zh'));
+      final loc = AppLocalizations(const Locale('es'));
 
       await tester.pumpWidget(
         MaterialApp(
-          locale: const Locale('zh'),
+          locale: const Locale('es'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -103,14 +103,14 @@ void main() {
       completedAt: DateTime(2026, 7, 13, 12, 22, 25).millisecondsSinceEpoch,
       duration: 65,
       fileSize: 2048,
-      downloadPath: '/storage/emulated/0/Download/VidBee_测试视频.mp4',
-      savedFileName: 'VidBee_测试视频.mp4',
+      downloadPath: '/storage/emulated/0/Download/QvaSave_测试视频.mp4',
+      savedFileName: 'QvaSave_测试视频.mp4',
     );
-    final loc = AppLocalizations(const Locale('zh'));
+    final loc = AppLocalizations(const Locale('es'));
 
     await tester.pumpWidget(
       MaterialApp(
-        locale: const Locale('zh'),
+        locale: const Locale('es'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
@@ -129,9 +129,9 @@ void main() {
     expect(find.text('2026/07/13 12:22:25'), findsOneWidget);
     expect(find.text('01:05'), findsOneWidget);
     expect(find.text('2.0 KB'), findsOneWidget);
-    expect(find.text('VidBee_测试视频.mp4'), findsOneWidget);
+    expect(find.text('QvaSave_测试视频.mp4'), findsOneWidget);
     expect(
-      find.text('/storage/emulated/0/Download/VidBee_测试视频.mp4'),
+      find.text('/storage/emulated/0/Download/QvaSave_测试视频.mp4'),
       findsOneWidget,
     );
     // 不应出现 epoch 0 的 1970 显示
@@ -152,13 +152,13 @@ void main() {
       duration: 0,
       fileSize: 0,
       downloadPath: '/storage/emulated/0/Download',
-      savedFileName: 'VidBee_x.mp4',
+      savedFileName: 'QvaSave_x.mp4',
     );
-    final loc = AppLocalizations(const Locale('zh'));
+    final loc = AppLocalizations(const Locale('es'));
 
     await tester.pumpWidget(
       MaterialApp(
-        locale: const Locale('zh'),
+        locale: const Locale('es'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(

@@ -1,6 +1,7 @@
 class AppLocalizationsEn {
   final Map<String, String> _localizedValues = {
-    'appTitle': 'VidBee',
+    'appTitle': 'QvaSave Pro',
+    'home': 'Home',
     'addUrl': 'Add URL',
     'download': 'Download',
     'history': 'History',
@@ -111,7 +112,7 @@ class AppLocalizationsEn {
     'installPackageReady': 'Package downloaded. Opening system installer',
     'installPermissionRequired': 'Install permission required',
     'installPermissionMessage':
-        'Allow VidBee to install unknown apps, then return and tap download and install again.',
+        'Allow QvaSave Pro to install unknown apps, then return and tap download and install again.',
     'noCompatibleApk': 'No compatible APK found for this device',
     'openReleasePage': 'Open release page',
     'checkingForUpdates': 'Checking for updates...',
@@ -255,6 +256,49 @@ class AppLocalizationsEn {
     'pasteUaHint': 'Paste User-Agent...',
     'restoreDefault': 'Restore default',
     'uaRestoredDefault': 'Default User-Agent restored',
+    'cannotConnectToServer': 'Could not connect to the server',
+    'checkingLoginStatus': 'Checking login status...',
+    'clearingOldCookies': 'Clearing old cookies...',
+    'connectionClosed': 'Connection closed',
+    'connectionRefused':
+        'Connection refused, the server may be blocking access',
+    'connectionTimeout': 'Connection timed out, check your network',
+    'cookieSavedDownloadBilibili':
+        'Cookies saved, you can download Bilibili videos now',
+    'dnsError': 'Could not resolve the server name, check your DNS settings',
+    'endTime': 'End Time',
+    'errorCodeLabel': 'Error code: {code}',
+    'exportFile': 'Export File',
+    'getCookieFailed': 'Failed to get cookies',
+    'initializingWebView': 'Initializing WebView...',
+    'loadFailed': 'Failed to load',
+    'loadFailedWithReason': 'Failed to load: {error}',
+    'loadingLoginPage': 'Loading login page...',
+    'loadingPage': 'Loading...',
+    'loginAgain': 'Log in again',
+    'loginBilibiliAccount': 'Please log in to your Bilibili account',
+    'loginBilibiliTitle': 'Log in to Bilibili',
+    'loginNotDetected': 'Login not detected, please log in first',
+    'loginSuccessCookiesSaved': '✅ Login successful! Cookies saved',
+    'loginToSite': 'Log in to {site}',
+    'loggedInBilibili': '✓ Bilibili logged in',
+    'logsCopied': 'Logs copied',
+    'logsExportFailed': 'Failed to export logs',
+    'logsFileGenerated': 'Log file generated',
+    'logsLoadFailed': 'Failed to read logs',
+    'noCookiesDetected': 'No cookies detected, please log in on the page first',
+    'noLogsInRange': 'No logs in the selected time range',
+    'pleaseLoginThenDetect':
+        'Please log in to your {site} account, then tap "Detect Login"',
+    'reloading': 'Reloading...',
+    'saveCookie': 'Save Cookie',
+    'saveCookieFailed': '❌ Failed to save cookies',
+    'savedBilibiliCookie':
+        'Bilibili cookie saved. Tap the button below to log in again.',
+    'serverNoResponse': 'Server did not respond, check your network connection',
+    'shareLogsSubject': 'QvaSave Pro logs',
+    'startTime': 'Start Time',
+    'unknownError': 'Unknown error',
   };
 
   String getLocalizedValue(String key) {

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:vidbee_flutter/core/services/app_update_service.dart';
+import 'package:qvasave_pro/core/services/app_update_service.dart';
 
 void main() {
   group('AppUpdateService', () {
@@ -47,7 +47,7 @@ void main() {
 
     test('rejects a truncated APK and removes the partial file', () async {
       final temporaryDirectory = await Directory.systemTemp.createTemp(
-        'vidbee_update_test_',
+        'qvasoft_update_test_',
       );
       final client = _StreamClient(
         (_) async => http.StreamedResponse(

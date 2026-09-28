@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Flutter application named `vidbee_flutter`. App code lives in `lib/`:
+This is a Flutter application named `qvasave_pro`. App code lives in `lib/`:
 
 - `lib/main.dart` starts the app.
 - `lib/core/` contains models, database DAOs, providers, services, and utilities.

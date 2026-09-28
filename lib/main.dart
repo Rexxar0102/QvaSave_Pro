@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'shared/constants/app_constants.dart';
 import 'shared/i18n/app_localizations.dart';
+import 'shared/theme/app_theme.dart';
+import 'shared/widgets/qva_nav_bar.dart';
 import 'core/providers/service_providers.dart';
 import 'core/services/services.dart';
 import 'core/utils/app_logger.dart';
@@ -23,11 +25,15 @@ void main() {
 
       FlutterError.onError = (details) {
         FlutterError.presentError(details);
-        AppLogger.error('Flutter 未捕获异常', details.exception, details.stack);
+        AppLogger.error(
+          'Flutter uncaught exception',
+          details.exception,
+          details.stack,
+        );
       };
 
       PlatformDispatcher.instance.onError = (error, stackTrace) {
-        AppLogger.error('Platform 未捕获异常', error, stackTrace);
+        AppLogger.error('Platform uncaught exception', error, stackTrace);
         return true;
       };
 
@@ -36,13 +42,13 @@ void main() {
         DeviceOrientation.portraitDown,
       ]);
 
-      AppLogger.info('VidBee 启动完成');
-      runApp(const ProviderScope(child: VidBeeApp()));
+      AppLogger.info('QvaSave Pro startup complete');
+      runApp(const ProviderScope(child: QvaSaveApp()));
       // 通知通道不影响首屏展示，放到 runApp 之后初始化以缩短冷启动等待。
       unawaited(_initializeNotificationService());
     },
     (error, stackTrace) {
-      AppLogger.error('Zone 未捕获异常', error, stackTrace);
+      AppLogger.error('Zone uncaught exception', error, stackTrace);
     },
   );
 }
@@ -51,37 +57,24 @@ Future<void> _initializeNotificationService() async {
   try {
     await NotificationService().initialize();
   } catch (e, stackTrace) {
-    AppLogger.error('通知服务初始化失败，已跳过', e, stackTrace);
+    AppLogger.error('Notification service init failed, skipped', e, stackTrace);
   }
 }
 
-class VidBeeApp extends ConsumerWidget {
-  const VidBeeApp({super.key});
+/// QvaSave App 入口。
+class QvaSaveApp extends ConsumerWidget {
+  const QvaSaveApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final languageCode = ref.watch(languageProvider);
 
-    const primaryColor = Color(0xFFF9B61B);
-
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: primaryColor,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: primaryColor,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: QvaTheme.buildLight(),
+      darkTheme: QvaTheme.buildDark(),
       themeMode: themeMode,
       locale: Locale(languageCode),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -156,46 +149,55 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppConstants.appName),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddUrlDialog(context),
-          ),
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: QvaColors.olive,
+        systemNavigationBarColor: QvaColors.navOverlay,
+        systemNavigationBarIconBrightness: Brightness.light,
       ),
-      // 已访问页面保留状态与滚动位置；未访问页面仍延迟构建，避免拖慢首屏。
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [for (final page in _pages) page ?? const SizedBox.shrink()],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _pages[index] ??= _createPage(index);
-            _selectedIndex = index;
-          });
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.download_outlined),
-            selectedIcon: const Icon(Icons.download),
-            label: loc.download,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 68,
+          centerTitle: false,
+          titleSpacing: 24,
+          title: Text(
+            AppConstants.appName,
+            style: const TextStyle(
+              fontFamily: QvaColors.fontJersey25,
+              fontSize: 36,
+              height: 1,
+              letterSpacing: -0.5,
+              color: QvaColors.wordmark,
+              shadows: [
+                Shadow(
+                  color: Color(0x40000000),
+                  offset: Offset(0, 4),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.history_outlined),
-            selectedIcon: const Icon(Icons.history),
-            label: loc.history,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: loc.settings,
-          ),
-        ],
+        ),
+        // 已访问页面保留状态与滚动位置；未访问页面仍延迟构建，避免拖慢首屏。
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [for (final page in _pages) page ?? const SizedBox.shrink()],
+        ),
+        bottomNavigationBar: QvaNavBar(
+          currentIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() {
+              _pages[index] ??= _createPage(index);
+              _selectedIndex = index;
+            });
+          },
+          items: [
+            QvaNavDestination(icon: Icons.home_outlined, label: loc.home),
+            QvaNavDestination(icon: Icons.history, label: loc.history),
+            QvaNavDestination(icon: Icons.tune, label: loc.settings),
+          ],
+          onAddPressed: () => _showAddUrlDialog(context),
+        ),
       ),
     );
   }

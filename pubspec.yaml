@@ -1,4 +1,4 @@
-name: vidbee_flutter
+name: qvasave_pro
 description: "A modern, open-source video downloader for Android powered by yt-dlp."
 publish_to: 'none'
 
@@ -71,7 +71,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
+    - family: Jersey25
+      fonts:
+        - asset: assets/fonts/Jersey25-Regular.ttf
+
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "../VidBee/apps/docs/public/icon-512.png"
+  image_path: "../QvaSave Pro/apps/docs/public/icon-512.png"

@@ -1,6 +1,6 @@
 // 下载产物文件名解析（纯函数，便于单测）
 //
-// yt-dlp 常把 outputTemplate（如 VidBee_%(title)s.%(ext)s）原样返回；
+// yt-dlp 常把 outputTemplate（如 QvaSave_%(title)s.%(ext)s）原样返回；
 // 实际落盘名还会对 \ / : * ? " < > | 等字符做替换/删除。
 // 这里统一做"安全化后再比对"，避免标题含引号/emoji 时匹配失败，
 // 从而把模板路径写进历史记录。
@@ -36,7 +36,7 @@ String sanitizeFilenameComponent(String input) {
       .trim();
 }
 
-/// 从候选文件路径中，按 `VidBee_<title>` 规则选出最可能的下载产物。
+/// 从候选文件路径中，按 `QvaSave_<title>` 规则选出最可能的下载产物。
 ///
 /// [candidatePaths] 应为下载目录中的文件完整路径（调用方已过滤目录 / .part / .ytdl）。
 /// [modifiedMsByPath] 可选：路径 → 修改时间毫秒，用于同匹配时取最新。
@@ -45,29 +45,29 @@ String sanitizeFilenameComponent(String input) {
 /// 匹配顺序：
 /// 1. 标题安全化后与文件名主体比对
 /// 2. 仅当调用方明确设置 [allowNewestFallback] 时，才回退到最近修改的
-///    `VidBee_*` 文件。并发下载场景不得启用该回退。
+///    `QvaSave_*` 文件。并发下载场景不得启用该回退。
 String? matchDownloadedFileByTitle({
   required List<String> candidatePaths,
   required String? title,
-  String filePrefix = 'VidBee_',
+  String filePrefix = 'QvaSave_',
   Map<String, int>? modifiedMsByPath,
   bool allowNewestFallback = false,
 }) {
   if (candidatePaths.isEmpty) return null;
 
-  final vidbeePaths = <String>[];
+  final qvaPaths = <String>[];
   for (final path in candidatePaths) {
     if (isYtDlpTemplatePath(path)) continue;
     final name = fileNameFromPath(path);
     if (!name.startsWith(filePrefix)) continue;
-    vidbeePaths.add(path);
+    qvaPaths.add(path);
   }
-  if (vidbeePaths.isEmpty) return null;
+  if (qvaPaths.isEmpty) return null;
 
   final titleSan = sanitizeFilenameComponent(title ?? '');
   if (titleSan.isNotEmpty) {
     final matches = <String>[];
-    for (final path in vidbeePaths) {
+    for (final path in qvaPaths) {
       final name = fileNameFromPath(path);
       final stem = stripFileExtension(name).substring(filePrefix.length);
       final stemSan = sanitizeFilenameComponent(stem);
@@ -82,7 +82,7 @@ String? matchDownloadedFileByTitle({
   }
 
   if (!allowNewestFallback) return null;
-  return _pickNewest(vidbeePaths, modifiedMsByPath);
+  return _pickNewest(qvaPaths, modifiedMsByPath);
 }
 
 String? _pickNewest(List<String> paths, Map<String, int>? modifiedMsByPath) {

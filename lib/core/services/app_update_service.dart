@@ -55,9 +55,9 @@ class AppUpdateService {
        _temporaryDirectoryProvider =
            temporaryDirectoryProvider ?? getTemporaryDirectory;
 
-  static const _channel = MethodChannel('com.vidbee.app_update');
+  static const _channel = MethodChannel('com.qvasoft.qvasave_pro.app_update');
   static const _latestReleaseApi =
-      'https://api.github.com/repos/Autsunset/VidBee_Flutter/releases/latest';
+      'https://api.github.com/repos/Rexxar0102/QvaSave_Pro/releases/latest';
 
   final http.Client _client;
   final Future<Directory> Function() _temporaryDirectoryProvider;
@@ -106,7 +106,7 @@ class AppUpdateService {
       );
       return result ?? const [];
     } catch (e) {
-      AppLogger.error('获取设备 ABI 失败', e);
+      AppLogger.error('Failed to get device ABI', e);
       return const [];
     }
   }
@@ -164,7 +164,7 @@ class AppUpdateService {
       rethrow;
     }
 
-    AppLogger.info('应用更新安装包下载完成: ${file.path}');
+    AppLogger.info('App update package downloaded: ${file.path}');
     return file;
   }
 

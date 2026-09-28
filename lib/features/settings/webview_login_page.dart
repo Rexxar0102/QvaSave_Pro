@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../core/services/cookie_service.dart';
 import '../../core/utils/app_logger.dart';
+import '../../shared/i18n/app_localizations.dart';
 
 class WebViewLoginPage extends StatefulWidget {
   final String title;
@@ -30,16 +31,26 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
   WebViewController? _controller;
   final CookieService _cookieService = CookieService();
   bool _isLoading = true;
-  String _statusMessage = '正在加载登录页面...';
+  String _statusMessage = '';
   bool _loginDetected = false;
+  bool _hasError = false;
+
+  String _t(String template, Map<String, Object> values) {
+    var result = template;
+    for (final entry in values.entries) {
+      result = result.replaceAll('{${entry.key}}', entry.value.toString());
+    }
+    return result;
+  }
 
   @override
   void initState() {
     super.initState();
     // 确保每次打开页面时都是全新状态
     _loginDetected = false;
+    _hasError = false;
     _isLoading = true;
-    _statusMessage = '正在清理旧 Cookie...';
+    _statusMessage = '';
     _clearWebViewCookiesAndInit();
   }
 
@@ -48,9 +59,9 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
     try {
       final cookieManager = WebViewCookieManager();
       await cookieManager.clearCookies();
-      AppLogger.debug('WebView Cookie 已清理，准备加载登录页面');
+      AppLogger.debug('WebView cookies cleared, preparing to load login page');
     } catch (e) {
-      AppLogger.error('清理 WebView Cookie 失败', e);
+      AppLogger.error('Failed to clear WebView cookies', e);
     }
     if (!mounted) return;
     _initWebView();
@@ -58,6 +69,7 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
 
   void _initWebView() {
     if (!mounted) return;
+    final loc = AppLocalizations.of(context)!;
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(
@@ -70,56 +82,64 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
             if (!mounted) return;
             setState(() {
               _isLoading = true;
-              _statusMessage = '正在加载...';
+              _hasError = false;
+              _statusMessage = loc.loadingPage;
             });
           },
           onPageFinished: (String url) async {
             if (!mounted) return;
             setState(() {
               _isLoading = false;
-              _statusMessage = '请登录您的 ${widget.title} 账号，登录后点击"检查登录"';
+              _hasError = false;
+              _statusMessage = _t(loc.pleaseLoginThenDetect, {
+                'site': widget.title,
+              });
             });
           },
           onWebResourceError: (WebResourceError error) {
-            AppLogger.error('WebView 加载错误');
-            AppLogger.error('WebView 错误描述', error.description);
-            AppLogger.error('WebView 错误码', error.errorCode);
-            AppLogger.error('WebView 错误类型', error.errorType);
-            AppLogger.error('WebView 错误 URL', error.url);
+            AppLogger.error('WebView load error');
+            AppLogger.error('WebView error description', error.description);
+            AppLogger.error('WebView error code', error.errorCode);
+            AppLogger.error('WebView error type', error.errorType);
+            AppLogger.error('WebView error URL', error.url);
 
             if (mounted) {
               setState(() {
                 _isLoading = false;
-                String errorMsg = '加载失败';
+                _hasError = true;
+                String errorMsg = loc.loadFailed;
 
                 // 根据错误码提供更详细的错误信息
                 switch (error.errorCode) {
                   case -1:
-                    errorMsg = '未知错误';
+                    errorMsg = loc.unknownError;
                     break;
                   case -2:
-                    errorMsg = '服务器未响应，请检查网络连接';
+                    errorMsg = loc.serverNoResponse;
                     break;
                   case -6:
-                    errorMsg = '连接被拒绝，服务器可能拒绝访问';
+                    errorMsg = loc.connectionRefused;
                     break;
                   case -7:
-                    errorMsg = '连接超时，请检查网络';
+                    errorMsg = loc.connectionTimeout;
                     break;
                   case -8:
-                    errorMsg = '连接关闭';
+                    errorMsg = loc.connectionClosed;
                     break;
                   case -10:
-                    errorMsg = '无法解析服务器名称，请检查 DNS 设置';
+                    errorMsg = loc.dnsError;
                     break;
                   case -11:
-                    errorMsg = '无法连接到服务器';
+                    errorMsg = loc.cannotConnectToServer;
                     break;
                   default:
-                    errorMsg = '加载失败: ${error.description}';
+                    errorMsg = _t(loc.loadFailedWithReason, {
+                      'error': error.description,
+                    });
                 }
 
-                _statusMessage = '$errorMsg (错误码: ${error.errorCode})';
+                _statusMessage =
+                    '$errorMsg (${_t(loc.errorCodeLabel, {'code': error.errorCode})})';
               });
             }
           },
@@ -155,8 +175,10 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
       await _cookieService.saveCookie(widget.domain, cleanCookies);
 
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         setState(() {
-          _statusMessage = '✅ 登录成功！Cookie 已保存';
+          _hasError = false;
+          _statusMessage = loc.loginSuccessCookiesSaved;
         });
 
         // 延迟后关闭页面
@@ -167,10 +189,12 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
         });
       }
     } catch (e) {
-      AppLogger.error('保存 Cookie 失败', e);
+      AppLogger.error('Failed to save cookies', e);
       if (mounted) {
+        final loc = AppLocalizations.of(context)!;
         setState(() {
-          _statusMessage = '❌ 保存 Cookie 失败: $e';
+          _hasError = true;
+          _statusMessage = '${loc.saveCookieFailed}: $e';
         });
       }
     }
@@ -188,15 +212,16 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
 
       await _saveCookies(cookies.toString());
     } catch (e) {
-      AppLogger.error('获取 Cookie 失败', e);
+      AppLogger.error('Failed to get cookies', e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('登录 ${widget.title}'),
+        title: Text(_t(loc.loginToSite, {'site': widget.title})),
         actions: [
           TextButton(
             onPressed: _controller == null
@@ -210,7 +235,7 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
                           .runJavaScriptReturningResult('document.cookie');
                       final cookieString = cookies.toString();
 
-                      AppLogger.debug('手动保存 Cookie: 已获取 Cookie');
+                      AppLogger.debug('Manual cookie save: cookies retrieved');
 
                       if (cookieString.isNotEmpty) {
                         // 直接保存，不管有没有检测到登录状态
@@ -219,22 +244,20 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
                       } else {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('未检测到 Cookie，请先在页面中登录'),
-                            ),
+                            SnackBar(content: Text(loc.noCookiesDetected)),
                           );
                         }
                       }
                     } catch (e) {
-                      AppLogger.error('获取 Cookie 失败', e);
+                      AppLogger.error('Failed to get cookies', e);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('获取 Cookie 失败: $e')),
+                          SnackBar(content: Text('${loc.getCookieFailed}: $e')),
                         );
                       }
                     }
                   },
-            child: const Text('保存 Cookie'),
+            child: Text(loc.saveCookie),
           ),
         ],
       ),
@@ -246,7 +269,7 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
             padding: const EdgeInsets.all(12),
             color: _loginDetected
                 ? Colors.green.withValues(alpha: 0.1)
-                : _statusMessage.contains('失败')
+                : _hasError
                 ? Colors.red.withValues(alpha: 0.1)
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Row(
@@ -261,36 +284,38 @@ class _WebViewLoginPageState extends State<WebViewLoginPage> {
                   Icon(
                     _loginDetected
                         ? Icons.check_circle
-                        : _statusMessage.contains('失败')
+                        : _hasError
                         ? Icons.error_outline
                         : Icons.info_outline,
                     size: 16,
                     color: _loginDetected
                         ? Colors.green
-                        : _statusMessage.contains('失败')
+                        : _hasError
                         ? Colors.red
                         : null,
                   ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _statusMessage,
+                    _statusMessage.isEmpty
+                        ? loc.loadingLoginPage
+                        : _statusMessage,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
                 // 错误时显示重试按钮
-                if (_statusMessage.contains('失败') ||
-                    _statusMessage.contains('错误'))
+                if (_hasError)
                   TextButton.icon(
                     onPressed: () {
                       setState(() {
                         _isLoading = true;
-                        _statusMessage = '正在重新加载...';
+                        _hasError = false;
+                        _statusMessage = loc.reloading;
                       });
                       _controller?.reload();
                     },
                     icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('重试'),
+                    label: Text(loc.retry),
                   ),
               ],
             ),

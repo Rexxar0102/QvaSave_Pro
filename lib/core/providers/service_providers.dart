@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
@@ -79,18 +77,16 @@ final downloadPathProvider = StateProvider<String>((ref) {
   return '/storage/emulated/0/Download';
 });
 
-const _supportedLanguageCodes = {'zh', 'en', 'ja', 'ko'};
+const _supportedLanguageCodes = {'es', 'en'};
 
-/// Returns a supported app language, with English as the fallback.
+/// Returns a supported app language, with Spanish as the fallback.
 String resolveAppLanguageCode(String? languageCode) {
   final normalizedCode = languageCode?.toLowerCase();
   return _supportedLanguageCodes.contains(normalizedCode)
       ? normalizedCode!
-      : 'en';
+      : 'es';
 }
 
 final languageProvider = StateProvider<String>((ref) {
-  return resolveAppLanguageCode(
-    PlatformDispatcher.instance.locale.languageCode,
-  );
+  return 'es';
 });

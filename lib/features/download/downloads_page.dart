@@ -6,6 +6,7 @@ import '../../core/providers/providers.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/event_bus.dart';
 import '../../shared/i18n/app_localizations.dart';
+import '../../shared/theme/app_theme.dart';
 import '../../shared/widgets/task_widgets.dart';
 
 class DownloadsPage extends ConsumerStatefulWidget {
@@ -87,25 +88,50 @@ class _DownloadsPageState extends ConsumerState<DownloadsPage> {
   }
 
   Widget _buildEmptyState(BuildContext context, AppLocalizations loc) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.download_outlined,
-            size: 64,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(height: 16),
-          Text(loc.noDownloads, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            loc.clickToAddDownload,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                color: QvaColors.olive.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(
+                Icons.download_outlined,
+                size: 40,
+                color: QvaColors.olive,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Text(
+              loc.noDownloads,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+                color: isDark ? const Color(0xFFEDEDEC) : QvaColors.ink,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              loc.clickToAddDownload,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                height: 1.35,
+                color: isDark ? const Color(0xFF8F8F89) : QvaColors.muted,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -147,7 +173,7 @@ class DownloadTaskCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        task.title ?? '未知标题',
+                        task.title ?? loc.unknownTitle,
                         style: Theme.of(context).textTheme.titleSmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -158,11 +184,7 @@ class DownloadTaskCard extends StatelessWidget {
                           TaskStatusChip(status: task.status, loc: loc),
                           const SizedBox(width: 8),
                           if (task.type == DownloadType.audio)
-                            Chip(
-                              label: Text(loc.audio),
-                              padding: EdgeInsets.zero,
-                              visualDensity: VisualDensity.compact,
-                            ),
+                            TaskTypeChip(label: loc.audio, color: QvaColors.oliveFab),
                         ],
                       ),
                     ],

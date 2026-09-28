@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/database/download_history_dao.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
-import 'package:vidbee_flutter/core/services/history_service.dart';
+import 'package:qvasave_pro/core/database/download_history_dao.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
+import 'package:qvasave_pro/core/services/history_service.dart';
 
 void main() {
   late FakeDownloadHistoryDao dao;
@@ -77,18 +77,18 @@ void main() {
 
     await service.updateSavedFile(
       'one',
-      '/storage/emulated/0/Download/VidBee_Clip.mp4',
-      'VidBee_Clip.mp4',
+      '/storage/emulated/0/Download/QvaSave_Clip.mp4',
+      'QvaSave_Clip.mp4',
       fileSize: 12345,
     );
 
     final cached = service.getHistory().single;
     final persisted = (await dao.getAllDownloadHistory()).single;
 
-    expect(cached.savedFileName, 'VidBee_Clip.mp4');
-    expect(cached.downloadPath, '/storage/emulated/0/Download/VidBee_Clip.mp4');
+    expect(cached.savedFileName, 'QvaSave_Clip.mp4');
+    expect(cached.downloadPath, '/storage/emulated/0/Download/QvaSave_Clip.mp4');
     expect(cached.fileSize, 12345);
-    expect(persisted.savedFileName, 'VidBee_Clip.mp4');
+    expect(persisted.savedFileName, 'QvaSave_Clip.mp4');
     expect(persisted.fileSize, 12345);
   });
 

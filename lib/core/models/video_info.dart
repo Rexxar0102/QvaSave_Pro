@@ -91,7 +91,7 @@ class VideoFormat {
       } else if (formatNote != null) {
         return formatNote!;
       } else {
-        return '音频';
+        return 'Audio';
       }
     }
     // 如果是视频格式，显示分辨率

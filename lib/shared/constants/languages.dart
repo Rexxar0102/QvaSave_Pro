@@ -1,4 +1,4 @@
-// 语言定义
+// Language definitions
 
 class AppLanguage {
   final String code;
@@ -13,20 +13,18 @@ class AppLanguage {
 }
 
 const List<AppLanguage> supportedLanguages = [
-  AppLanguage(code: 'zh', name: 'Chinese', nativeName: '简体中文'),
+  AppLanguage(code: 'es', name: 'Spanish', nativeName: 'Español'),
   AppLanguage(code: 'en', name: 'English', nativeName: 'English'),
-  AppLanguage(code: 'ja', name: 'Japanese', nativeName: '日本語'),
-  AppLanguage(code: 'ko', name: 'Korean', nativeName: '한국어'),
 ];
 
-// 获取语言列表
+// Get language list
 List<Map<String, String>> getLanguageList() {
   return supportedLanguages
       .map((lang) => {'code': lang.code, 'name': lang.nativeName})
       .toList();
 }
 
-// 根据代码获取语言
+// Get language by code
 AppLanguage? getLanguageByCode(String code) {
   return supportedLanguages.firstWhere(
     (lang) => lang.code == code,

@@ -56,8 +56,8 @@ class NotificationService {
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'download_channel',
-          '下载进度',
-          channelDescription: '显示视频下载进度',
+          'Download progress',
+          channelDescription: 'Displays video download progress',
           importance: Importance.low,
           priority: Priority.low,
           showProgress: true,
@@ -77,7 +77,7 @@ class NotificationService {
       content += ' • $speed';
     }
     if (eta != null) {
-      content += ' • 剩余 $eta';
+      content += ' • Remaining $eta';
     }
 
     final notificationId = taskId.hashCode.abs() % 0x7FFFFFFF;
@@ -95,8 +95,8 @@ class NotificationService {
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'download_complete_channel',
-          '下载完成',
-          channelDescription: '显示视频下载完成',
+          'Download complete',
+          channelDescription: 'Displays video download completion',
           importance: Importance.high,
           priority: Priority.high,
         );
@@ -107,7 +107,12 @@ class NotificationService {
 
     final notificationId = taskId.hashCode.abs() % 0x7FFFFFFF;
 
-    await _notifications.show(notificationId, '下载完成', title, details);
+    await _notifications.show(
+      notificationId,
+      'Download complete',
+      title,
+      details,
+    );
   }
 
   /// 显示下载失败通知
@@ -121,8 +126,8 @@ class NotificationService {
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
           'download_error_channel',
-          '下载失败',
-          channelDescription: '显示视频下载失败',
+          'Download failed',
+          channelDescription: 'Displays video download failure',
           importance: Importance.high,
           priority: Priority.high,
         );
@@ -135,7 +140,7 @@ class NotificationService {
 
     await _notifications.show(
       notificationId,
-      '下载失败',
+      'Download failed',
       '$title: $error',
       details,
     );

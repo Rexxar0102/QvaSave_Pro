@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.vidbee" "\0"
-            VALUE "FileDescription", "vidbee_flutter" "\0"
+            VALUE "CompanyName", "QvaSoft" "\0"
+            VALUE "FileDescription", "qvasave_pro" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "vidbee_flutter" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.vidbee. All rights reserved." "\0"
-            VALUE "OriginalFilename", "vidbee_flutter.exe" "\0"
-            VALUE "ProductName", "vidbee_flutter" "\0"
+            VALUE "InternalName", "qvasave_pro" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.qvasoft.qvasave_pro. All rights reserved." "\0"
+            VALUE "OriginalFilename", "qvasave_pro.exe" "\0"
+            VALUE "ProductName", "qvasave_pro" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -3,14 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vidbee_flutter/core/database/download_history_dao.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
-import 'package:vidbee_flutter/core/models/video_info.dart';
-import 'package:vidbee_flutter/core/services/download_service.dart';
-import 'package:vidbee_flutter/core/services/history_service.dart';
-import 'package:vidbee_flutter/core/services/notification_service.dart';
-import 'package:vidbee_flutter/core/services/ytdlp_service.dart';
-import 'package:vidbee_flutter/core/utils/event_bus.dart';
+import 'package:qvasave_pro/core/database/download_history_dao.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
+import 'package:qvasave_pro/core/models/video_info.dart';
+import 'package:qvasave_pro/core/services/download_service.dart';
+import 'package:qvasave_pro/core/services/history_service.dart';
+import 'package:qvasave_pro/core/services/notification_service.dart';
+import 'package:qvasave_pro/core/services/ytdlp_service.dart';
+import 'package:qvasave_pro/core/utils/event_bus.dart';
 
 void main() {
   const incompleteTasksKey = 'incomplete_download_tasks';
@@ -60,15 +60,16 @@ void main() {
       expect(history, hasLength(1));
       expect(history.single.id, 'downloading');
       expect(history.single.status, DownloadStatus.error);
-      expect(history.single.error, '应用关闭或下载进程中断');
+      expect(history.single.error,
+          'App was closed or the download process was interrupted');
     },
   );
 
   test('retryTask queues a new task from a failed history item', () async {
     final source = task('failed', DownloadStatus.error).copyWith(
       selectedFormat: VideoFormat(formatId: '22', ext: 'mp4', height: 720),
-      downloadPath: '/storage/emulated/0/Download/VidBee_Clip.mp4',
-      savedFileName: 'VidBee_Clip.mp4',
+      downloadPath: '/storage/emulated/0/Download/QvaSave_Clip.mp4',
+      savedFileName: 'QvaSave_Clip.mp4',
       error: 'network failed',
     );
     final ytDlp = FakeYtDlpService();
@@ -99,7 +100,7 @@ void main() {
               status: DownloadStatus.completed,
             ),
           );
-          return '/storage/emulated/0/Download/VidBee_Clip.mp4';
+          return '/storage/emulated/0/Download/QvaSave_Clip.mp4';
         },
       );
       final dao = FakeDownloadHistoryDao();
@@ -125,9 +126,9 @@ void main() {
       expect(history.single.status, DownloadStatus.completed);
       expect(
         history.single.downloadPath,
-        '/storage/emulated/0/Download/VidBee_Clip.mp4',
+        '/storage/emulated/0/Download/QvaSave_Clip.mp4',
       );
-      expect(history.single.savedFileName, 'VidBee_Clip.mp4');
+      expect(history.single.savedFileName, 'QvaSave_Clip.mp4');
     },
   );
 
@@ -135,7 +136,7 @@ void main() {
     'returned output path completes task when completion event is lost',
     () async {
       final ytDlp = FakeYtDlpService(
-        onStart: (_) => '/storage/emulated/0/Download/VidBee_Result.mp4',
+        onStart: (_) => '/storage/emulated/0/Download/QvaSave_Result.mp4',
       );
       final dao = FakeDownloadHistoryDao();
       final service = DownloadService(
@@ -157,7 +158,7 @@ void main() {
       final history = await dao.getAllDownloadHistory();
       expect(history.single.id, added.id);
       expect(history.single.status, DownloadStatus.completed);
-      expect(history.single.savedFileName, 'VidBee_Result.mp4');
+      expect(history.single.savedFileName, 'QvaSave_Result.mp4');
       service.dispose();
     },
   );
@@ -199,7 +200,8 @@ void main() {
       expect(history, hasLength(1));
       expect(history.single.id, added.id);
       expect(history.single.status, DownloadStatus.error);
-      expect(history.single.error, '下载进程结束但没有返回输出文件');
+      expect(history.single.error,
+          'Download process ended without returning an output file');
       service.dispose();
     },
   );

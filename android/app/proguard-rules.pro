@@ -35,7 +35,7 @@
 -dontwarn kotlinx.**
 
 # Keep FileProvider paths / method channels used by MainActivity
--keep class com.vidbee.vidbee_flutter.** { *; }
+-keep class com.qvasoft.qvasave_pro.** { *; }
 
 # Keep native methods
 -keepclasseswithmembernames class * {

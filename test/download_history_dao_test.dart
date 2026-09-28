@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/database/app_database.dart';
-import 'package:vidbee_flutter/core/database/download_history_dao.dart';
-import 'package:vidbee_flutter/core/models/download_task.dart';
+import 'package:qvasave_pro/core/database/app_database.dart';
+import 'package:qvasave_pro/core/database/download_history_dao.dart';
+import 'package:qvasave_pro/core/models/download_task.dart';
 
 void main() {
   late AppDatabase db;

@@ -1,13 +1,13 @@
-# VidBee_Flutter 🐝
+# QvaSave Pro 🐝
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/Autsunset/VidBee_Flutter?style=flat-square" alt="License">
-  <img src="https://img.shields.io/github/v/release/Autsunset/VidBee_Flutter?style=flat-square" alt="Release">
+  <img src="https://img.shields.io/github/license/Rexxar0102/QvaSave_Pro?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/v/release/Rexxar0102/QvaSave_Pro?style=flat-square" alt="Release">
   <img src="https://img.shields.io/badge/Platform-Android-green?style=flat-square" alt="Platform">
-  <img src="https://img.shields.io/github/stars/Autsunset/VidBee_Flutter?style=flat-square" alt="Stars">
+  <img src="https://img.shields.io/github/stars/Rexxar0102/QvaSave_Pro?style=flat-square" alt="Stars">
 </p>
 
-**VidBee_Flutter** is a modern, cross-platform video downloader for Android built with Flutter. Powered by the legendary [yt-dlp](https://github.com/yt-dlp/yt-dlp) engine, it provides a seamless and intuitive experience for downloading videos and audios from 1000+ websites worldwide.
+**QvaSave Pro** is a modern, cross-platform video downloader for Android built with Flutter. Powered by the legendary [yt-dlp](https://github.com/yt-dlp/yt-dlp) engine, it provides a seamless and intuitive experience for downloading videos and audios from 1000+ websites worldwide.
 
 ---
 
@@ -50,9 +50,9 @@
 
 ### 📥 Quick Start
 
-1. **Download**: Get the latest APK from [Latest Release](https://github.com/Autsunset/VidBee_Flutter/releases/latest) and install it on your Android device.
+1. **Download**: Get the latest APK from [Latest Release](https://github.com/Rexxar0102/QvaSave_Pro/releases/latest) and install it on your Android device.
 2. **Copy Link**: Copy a video URL from your favorite app.
-3. **Download**: Open VidBee_Flutter. The app will automatically detect the link—just click "Parse" and choose your quality to start.
+3. **Download**: Open QvaSave Pro. The app will automatically detect the link—just click "Parse" and choose your quality to start.
 
 ---
 
@@ -60,12 +60,12 @@
 
 #### <a name="cookie-import"></a>🍪 How to Import Cookies
 
-Some restricted videos or high-quality streams require cookies. VidBee_Flutter supports importing cookies in **Netscape format**.
+Some restricted videos or high-quality streams require cookies. QvaSave Pro supports importing cookies in **Netscape format**.
 
 1. **Install Extension**: Install [Get cookies.txt LOCALLY](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/ccmclabimipkeocclodkapndfdbobpph) on your desktop browser (Chrome/Edge).
 2. **Login**: Log in to the target website (e.g., YouTube) in your browser.
 3. **Export**: Click the extension icon, ensure **Netscape** format is selected, and click **Export** to download `cookies.txt`.
-4. **Import**: Send the file to your phone and select it in VidBee_Flutter -> **Settings** -> **Cookie Management**.
+4. **Import**: Send the file to your phone and select it in QvaSave Pro -> **Settings** -> **Cookie Management**.
 
 > [!CAUTION]
 > Cookies contain sensitive login information. **Never share your cookies.txt file** with others.
@@ -88,7 +88,7 @@ For sites like YouTube, the default UA might cause parsing failures. We recommen
 
 ### 🤝 Contributing
 
-We welcome any contributions! If you find a bug or have a feature proposal, please submit an [Issue](https://github.com/Autsunset/VidBee_Flutter/issues).
+We welcome any contributions! If you find a bug or have a feature proposal, please submit an [Issue](https://github.com/Rexxar0102/QvaSave_Pro/issues).
 
 ### 📄 License
 
@@ -98,4 +98,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) - The powerful download engine
 - [FFmpeg](https://ffmpeg.org/) - The multimedia framework for processing
-- [VidBee (Desktop)](https://github.com/nexmoe/VidBee) - The project that inspired the original prototype
+- [QvaSave Pro (Desktop)](https://github.com/nexmoe/QvaSave Pro) - The project that inspired the original prototype

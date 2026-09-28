@@ -6,7 +6,9 @@ import 'app_logger.dart';
 
 /// 打开本机已下载文件（视频/音频等），触发系统「用哪个应用打开」。
 class FileOpener {
-  static const MethodChannel _channel = MethodChannel('com.vidbee.file_opener');
+  static const MethodChannel _channel = MethodChannel(
+    'com.qvasoft.qvasave_pro.file_opener',
+  );
 
   /// 打开 [filePath] 指向的本地文件。
   ///
@@ -19,10 +21,10 @@ class FileOpener {
       });
       return result ?? true;
     } on PlatformException catch (e) {
-      AppLogger.error('打开文件失败: ${e.code} ${e.message}', e);
+      AppLogger.error('Failed to open file: ${e.code} ${e.message}', e);
       return false;
     } catch (e) {
-      AppLogger.error('打开文件失败', e);
+      AppLogger.error('Failed to open file', e);
       return false;
     }
   }

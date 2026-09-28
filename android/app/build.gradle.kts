@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.vidbee.vidbee_flutter"
+    namespace = "com.qvasoft.qvasave_pro"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.vidbee.vidbee_flutter"
+        applicationId = "com.qvasoft.qvasave_pro"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24 // extractor 插件要求 API 24+

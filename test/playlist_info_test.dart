@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vidbee_flutter/core/models/playlist_info.dart';
+import 'package:qvasave_pro/core/models/playlist_info.dart';
 
 void main() {
   test('PlaylistEntry 往返序列化', () {

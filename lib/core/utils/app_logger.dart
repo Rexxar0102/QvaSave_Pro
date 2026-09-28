@@ -9,7 +9,7 @@ class AppLogger {
   const AppLogger._();
 
   static const int _retentionDays = 30;
-  static const String _logFilePrefix = 'vidbee_';
+  static const String _logFilePrefix = 'qvasoft_';
   static const String _logFileExtension = '.log';
 
   static Directory? _logDirectory;
@@ -20,7 +20,7 @@ class AppLogger {
   static Future<void> initialize() {
     _initFuture ??= _initialize().catchError((Object error) {
       if (kDebugMode) {
-        debugPrint('AppLogger 初始化失败: $error');
+        debugPrint('AppLogger initialization failed: $error');
       }
     });
     return _initFuture!;
@@ -93,12 +93,12 @@ class AppLogger {
     final file = File(
       p.join(
         exportDir.path,
-        'vidbee_logs_${_fileTimestamp(from)}_${_fileTimestamp(to)}.txt',
+        'qvasoft_logs_${_fileTimestamp(from)}_${_fileTimestamp(to)}.txt',
       ),
     );
     final logs = await readLogs(from: from, to: to);
     final content = StringBuffer()
-      ..writeln('VidBee logs')
+      ..writeln('QvaSave Pro logs')
       ..writeln('Range: ${_formatTimestamp(from)} - ${_formatTimestamp(to)}')
       ..writeln('Generated: ${_formatTimestamp(DateTime.now())}')
       ..writeln()
@@ -138,7 +138,7 @@ class AppLogger {
     }
     _logDirectory = logDirectory;
     await _cleanupOldLogs();
-    await _writeEntryDirect(_formatEntry('INFO', '日志系统已启动'));
+    await _writeEntryDirect(_formatEntry('INFO', 'Log system started'));
   }
 
   static void _log(String level, String message, [StackTrace? stackTrace]) {
@@ -151,7 +151,7 @@ class AppLogger {
         })
         .catchError((Object error) {
           if (kDebugMode) {
-            debugPrint('AppLogger 写入失败: $error');
+            debugPrint('AppLogger write failed: $error');
           }
         });
   }
@@ -190,7 +190,7 @@ class AppLogger {
           await entity.delete();
         } catch (error) {
           if (kDebugMode) {
-            debugPrint('删除旧日志失败: ${entity.path}: $error');
+            debugPrint('Failed to delete old log: ${entity.path}: $error');
           }
         }
       }
@@ -272,7 +272,7 @@ class AppLogger {
 
   static DateTime? _dateFromLogFileName(String fileName) {
     final match = RegExp(
-      r'^vidbee_(\d{4})-(\d{2})-(\d{2})\.log$',
+      r'^qvasoft_(\d{4})-(\d{2})-(\d{2})\.log$',
     ).firstMatch(fileName);
     if (match == null) return null;
 

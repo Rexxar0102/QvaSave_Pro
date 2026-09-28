@@ -1,6 +1,6 @@
-# VidBee Cookie 使用指南
+# QvaSave Pro Cookie 使用指南
 
-本文档介绍如何使用浏览器插件导出 Cookie，以便 VidBee 能够下载需要登录才能访问的视频。
+本文档介绍如何使用浏览器插件导出 Cookie，以便 QvaSave Pro 能够下载需要登录才能访问的视频。
 
 ## 目录
 
@@ -19,7 +19,7 @@
 - 访问会员专属内容
 - 下载某些受限视频
 
-通过导入浏览器 Cookie，VidBee 可以使用你的登录状态来下载这些视频。
+通过导入浏览器 Cookie，QvaSave Pro 可以使用你的登录状态来下载这些视频。
 
 ---
 
@@ -53,7 +53,7 @@
 
 **重要：使用桌面端浏览器登录！**
 
-> ⚠️ **关键提示**：VidBee 视频解析必须使用桌面端 UA（Windows/Mac 浏览器），使用移动端 UA 会导致解析失败！
+> ⚠️ **关键提示**：QvaSave Pro 视频解析必须使用桌面端 UA（Windows/Mac 浏览器），使用移动端 UA 会导致解析失败！
 >
 > 因此，请务必在 **桌面版浏览器** 中登录网站，而不是手机浏览器。
 
@@ -83,9 +83,9 @@
 .bilibili.com	TRUE	/	FALSE	1795412322	bili_jct	xxx
 ```
 
-### 第四步：导入到 VidBee
+### 第四步：导入到 QvaSave Pro
 
-1. 打开 VidBee 应用
+1. 打开 QvaSave Pro 应用
 2. 进入 **设置 → Cookie 管理**
 3. 点击 **"导入 Cookie 文件"**
 4. 选择刚才导出的 `cookies.txt` 文件
@@ -102,7 +102,7 @@
 
 ### 1. 关于 User-Agent（UA）
 
-**VidBee 已经默认使用桌面端 UA**，无需手动设置。
+**QvaSave Pro 已经默认使用桌面端 UA**，无需手动设置。
 
 但如果你自定义了 UA，请注意：
 - Bilibili 视频解析**必须使用桌面端 UA**
@@ -114,9 +114,9 @@
 
 ### 2. 多网站 Cookie 支持
 
-VidBee 支持同时导入多个网站的 Cookie：
+QvaSave Pro 支持同时导入多个网站的 Cookie：
 - 你可以一次性导出浏览器中所有网站的 Cookie
-- VidBee 会自动按域名分类存储
+- QvaSave Pro 会自动按域名分类存储
 - Bilibili 的 Cookie 不会覆盖 YouTube 的 Cookie
 
 ### 3. Cookie 有效期
@@ -128,7 +128,7 @@ VidBee 支持同时导入多个网站的 Cookie：
 ### 4. 隐私安全
 
 - Cookie 文件包含你的登录信息，**请勿分享给他人**
-- VidBee 只会在本地使用 Cookie，不会上传到任何服务器
+- QvaSave Pro 只会在本地使用 Cookie，不会上传到任何服务器
 - 建议定期检查并清理不需要的 Cookie
 
 ---
@@ -144,7 +144,7 @@ VidBee 支持同时导入多个网站的 Cookie：
 
 ### Q: 可以同时登录多个账号吗？
 
-不可以。VidBee 使用浏览器的 Cookie，同一时间只能使用一个账号的登录状态。
+不可以。QvaSave Pro 使用浏览器的 Cookie，同一时间只能使用一个账号的登录状态。
 
 ### Q: Cookie 文件可以手动编辑吗？
 
@@ -155,7 +155,7 @@ VidBee 支持同时导入多个网站的 Cookie：
 
 ### Q: 如何删除已导入的 Cookie？
 
-在 VidBee 中：
+在 QvaSave Pro 中：
 1. 进入 **设置 → Cookie 管理**
 2. 点击对应网站下方的 **"清理"** 按钮
 3. 或者点击 **"清除所有 Cookie"** 清除全部
@@ -171,9 +171,9 @@ YouTube 对下载有限制，建议：
 
 ## 其他获取 Cookie 的方法
 
-### 方法一：WebView 内置登录（VidBee 内）
+### 方法一：WebView 内置登录（QvaSave Pro 内）
 
-VidBee 内置了一键登录功能：
+QvaSave Pro 内置了一键登录功能：
 1. 进入 **设置 → Cookie 管理**
 2. 点击 **"Bilibili 登录"** 或 **"YouTube 登录"**
 3. 在弹出的页面中登录你的账号
@@ -191,10 +191,10 @@ VidBee 内置了一键登录功能：
 ## 技术支持
 
 如有问题，请访问：
-- GitHub Issues: https://github.com/Autsunset/VidBee_Flutter/issues
-- 项目主页: https://github.com/Autsunset/VidBee_Flutter
+- GitHub Issues: https://github.com/Rexxar0102/QvaSave_Pro/issues
+- 项目主页: https://github.com/Rexxar0102/QvaSave_Pro
 
 ---
 
 **最后更新：** 2026-04-24  
-**适用版本：** VidBee v1.0.6+
+**适用版本：** QvaSave Pro v1.0.6+

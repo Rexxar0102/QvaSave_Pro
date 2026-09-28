@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/utils/app_logger.dart';
+import '../../shared/i18n/app_localizations.dart';
 
 class LogsPage extends StatefulWidget {
   const LogsPage({super.key});
@@ -38,11 +39,12 @@ class _LogsPageState extends State<LogsPage> {
         _logs = logs;
       });
     } catch (error, stackTrace) {
-      AppLogger.error('读取日志失败', error, stackTrace);
+      AppLogger.error('Failed to read logs', error, stackTrace);
       if (!mounted) return;
+      final loc = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('读取日志失败: $error')));
+      ).showSnackBar(SnackBar(content: Text('${loc.logsLoadFailed}: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -96,41 +98,44 @@ class _LogsPageState extends State<LogsPage> {
   }
 
   Future<void> _copyLogs() async {
-    final text = _logs.isEmpty ? '选定时间范围内没有日志。' : _logs;
+    final loc = AppLocalizations.of(context)!;
+    final text = _logs.isEmpty ? loc.noLogsInRange : _logs;
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('日志已复制')));
+    ).showSnackBar(SnackBar(content: Text(loc.logsCopied)));
   }
 
   Future<void> _exportLogs() async {
+    final loc = AppLocalizations.of(context)!;
     try {
       final file = await AppLogger.exportLogs(from: _from, to: _to);
-      await Share.shareXFiles([XFile(file.path)], text: 'VidBee 日志');
+      await Share.shareXFiles([XFile(file.path)], text: loc.shareLogsSubject);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('日志文件已生成: ${file.path}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.logsFileGenerated}: ${file.path}')),
+      );
     } catch (error, stackTrace) {
-      AppLogger.error('导出日志失败', error, stackTrace);
+      AppLogger.error('Failed to export logs', error, stackTrace);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('导出日志失败: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.logsExportFailed}: $error')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('日志'),
+        title: Text(loc.logs),
         actions: [
           IconButton(
-            tooltip: '刷新',
+            tooltip: loc.refresh,
             onPressed: _isLoading ? null : _loadLogs,
             icon: const Icon(Icons.refresh),
           ),
@@ -144,14 +149,14 @@ class _LogsPageState extends State<LogsPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.play_arrow_outlined),
-                  title: const Text('开始时间'),
+                  title: Text(loc.startTime),
                   subtitle: Text(_formatDateTime(_from)),
                   trailing: const Icon(Icons.edit_calendar_outlined),
                   onTap: () => _pickDateTime(isStart: true),
                 ),
                 ListTile(
                   leading: const Icon(Icons.stop_outlined),
-                  title: const Text('结束时间'),
+                  title: Text(loc.endTime),
                   subtitle: Text(_formatDateTime(_to)),
                   trailing: const Icon(Icons.edit_calendar_outlined),
                   onTap: () => _pickDateTime(isStart: false),
@@ -176,7 +181,7 @@ class _LogsPageState extends State<LogsPage> {
                 child: OutlinedButton.icon(
                   onPressed: _isLoading ? null : _copyLogs,
                   icon: const Icon(Icons.copy_outlined),
-                  label: const Text('复制'),
+                  label: Text(loc.copy),
                 ),
               ),
               const SizedBox(width: 12),
@@ -184,7 +189,7 @@ class _LogsPageState extends State<LogsPage> {
                 child: FilledButton.icon(
                   onPressed: _isLoading ? null : _exportLogs,
                   icon: const Icon(Icons.ios_share_outlined),
-                  label: const Text('导出文件'),
+                  label: Text(loc.exportFile),
                 ),
               ),
             ],
@@ -196,7 +201,7 @@ class _LogsPageState extends State<LogsPage> {
 
   Widget _buildLogPreview(BuildContext context) {
     if (_logs.isEmpty) {
-      return const Center(child: Text('选定时间范围内没有日志'));
+      return Center(child: Text(AppLocalizations.of(context)!.noLogsInRange));
     }
 
     return Container(

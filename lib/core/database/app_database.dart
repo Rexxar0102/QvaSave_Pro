@@ -84,7 +84,7 @@ class AppDatabase extends _$AppDatabase {
   static LazyDatabase _openConnection() {
     return LazyDatabase(() async {
       final dbFolder = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dbFolder.path, 'vidbee.db'));
+      final file = File(p.join(dbFolder.path, 'qvasave.db'));
       return NativeDatabase(file);
     });
   }

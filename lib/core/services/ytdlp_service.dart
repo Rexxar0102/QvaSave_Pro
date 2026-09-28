@@ -7,8 +7,8 @@ import 'package:extractor/extractor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/video_info.dart' as vidbee;
-import '../models/download_task.dart' as vidbee;
+import '../models/video_info.dart' as qvasave;
+import '../models/download_task.dart' as qvasave;
 import '../utils/app_logger.dart';
 import '../utils/download_filename.dart';
 import '../utils/event_bus.dart';
@@ -79,11 +79,14 @@ class YtDlpService {
 
         return true;
       } else {
-        AppLogger.error('YtDlpService 初始化失败', result.errorMessage);
+        AppLogger.error(
+          'YtDlpService initialization failed',
+          result.errorMessage,
+        );
         return false;
       }
     } catch (e) {
-      AppLogger.error('YtDlpService 初始化异常', e);
+      AppLogger.error('YtDlpService initialization exception', e);
       return false;
     }
   }
@@ -101,7 +104,9 @@ class YtDlpService {
     final currentVersion = versionInfo['yt-dlp'] ?? '';
     if (_isYtDlpVersionAtLeast(currentVersion, _bundledYtDlpVersion)) {
       await prefs.setInt(_prefLastYtDlpUpdateCheck, now);
-      AppLogger.debug('当前 yt-dlp 已是随包新版 $currentVersion，跳过自动更新');
+      AppLogger.debug(
+        'Current yt-dlp is already the bundled new version $currentVersion, skipping auto-update',
+      );
       return;
     }
 
@@ -124,14 +129,16 @@ class YtDlpService {
       message: 'Update failed',
     );
     for (int i = 0; i < _ytDlpUpdateMaxRetries; i++) {
-      AppLogger.debug('正在自动更新 yt-dlp (尝试 ${i + 1}/$_ytDlpUpdateMaxRetries)...');
+      AppLogger.debug(
+        'Auto-updating yt-dlp (attempt ${i + 1}/$_ytDlpUpdateMaxRetries)...',
+      );
       lastResult = await _updateYtDlpOnce();
       if (lastResult.success) return lastResult;
-      AppLogger.error('yt-dlp 更新失败', lastResult.message);
+      AppLogger.error('yt-dlp update failed', lastResult.message);
       // 等待后重试
       await Future.delayed(_ytDlpUpdateRetryDelay);
     }
-    AppLogger.error('yt-dlp 自动更新失败，将使用内置版本');
+    AppLogger.error('yt-dlp auto-update failed, will use the bundled version');
     return lastResult;
   }
 
@@ -149,15 +156,15 @@ class YtDlpService {
 
     // 状态变化
     _subscriptions['state'] = _youtubeDL.onStateChanged.listen((state) {
-      vidbee.DownloadStatus status;
+      qvasave.DownloadStatus status;
       if (state.state == DownloadStateType.started) {
-        status = vidbee.DownloadStatus.downloading;
+        status = qvasave.DownloadStatus.downloading;
       } else if (state.state == DownloadStateType.completed) {
-        status = vidbee.DownloadStatus.completed;
+        status = qvasave.DownloadStatus.completed;
       } else if (state.state == DownloadStateType.cancelled) {
-        status = vidbee.DownloadStatus.cancelled;
+        status = qvasave.DownloadStatus.cancelled;
       } else {
-        status = vidbee.DownloadStatus.pending;
+        status = qvasave.DownloadStatus.pending;
       }
       final event = DownloadStatusChangedEvent(
         taskId: state.processId,
@@ -202,15 +209,15 @@ class YtDlpService {
       // Bilibili 必须使用桌面端 UA，否则 yt-dlp 会重定向到移动端导致解析失败
       if (!_isDesktopUA(effectiveUA)) {
         effectiveUA = _desktopUA;
-        AppLogger.debug('Bilibili 强制使用桌面端 UA');
+        AppLogger.debug('Bilibili forced to use desktop UA');
       } else {
-        AppLogger.debug('Bilibili 使用用户设置的桌面端 UA');
+        AppLogger.debug('Bilibili using user-provided desktop UA');
       }
     }
 
     if (effectiveUA.isNotEmpty) {
       options['--user-agent'] = effectiveUA;
-      if (!isBilibili) AppLogger.debug('使用自定义 UA');
+      if (!isBilibili) AppLogger.debug('Using custom UA');
     }
 
     // 按站点查找 Cookie 文件（Google 系等多域名站点会自动合并相关域名，
@@ -222,7 +229,7 @@ class YtDlpService {
       final cookieFile = File(cookieFilePath);
       if (await cookieFile.exists() && await cookieFile.length() > 0) {
         options['--cookies'] = cookieFilePath;
-        AppLogger.debug('使用 Cookie 文件: $cookieFilePath');
+        AppLogger.debug('Using cookie file: $cookieFilePath');
       }
     }
 
@@ -239,7 +246,10 @@ class YtDlpService {
   }
 
   /// 获取视频信息
-  Future<vidbee.VideoInfo?> getVideoInfo(String url, {String? customUA}) async {
+  Future<qvasave.VideoInfo?> getVideoInfo(
+    String url, {
+    String? customUA,
+  }) async {
     if (!_isInitialized) {
       final initialized = await initialize();
       if (!initialized) return null;
@@ -254,29 +264,31 @@ class YtDlpService {
 
       // 使用 getVideoInfoWithOptions 传递自定义选项
       VideoInfo info;
-      AppLogger.info('准备解析视频: domain=$domain, url=$effectiveUrl');
+      AppLogger.info(
+        'Preparing to parse video: domain=$domain, url=$effectiveUrl',
+      );
       if (options.isNotEmpty) {
-        AppLogger.debug('解析选项已设置: ${options.keys.join(', ')}');
+        AppLogger.debug('Parse options set: ${options.keys.join(', ')}');
         info = await _youtubeDL.getVideoInfoWithOptions(effectiveUrl, options);
       } else {
         info = await _youtubeDL.getVideoInfo(effectiveUrl);
       }
 
-      final converted = _convertToVidbeeVideoInfo(info);
+      final converted = _convertToQvaSaveVideoInfo(info);
       AppLogger.info(
-        '视频解析成功: domain=$domain, formats=${converted.formats.length}, '
+        'Video parsed successfully: domain=$domain, formats=${converted.formats.length}, '
         'title=${converted.title}',
       );
       return converted;
     } catch (e, stackTrace) {
-      AppLogger.error('获取视频信息失败: url=$url', e, stackTrace);
+      AppLogger.error('Failed to get video info: url=$url', e, stackTrace);
       return null;
     }
   }
 
   /// 开始下载
   Future<String?> startDownload(
-    vidbee.DownloadTask task, {
+    qvasave.DownloadTask task, {
     String? customUA,
   }) async {
     if (!_isInitialized) {
@@ -294,25 +306,31 @@ class YtDlpService {
       }
 
       if (!await PermissionHelper.isDirectoryWritable(downloadPath)) {
-        AppLogger.error('下载目录不可写，尝试使用备用目录', downloadPath);
+        AppLogger.error(
+          'Download directory not writable, trying fallback directory',
+          downloadPath,
+        );
         try {
           final appDir = await getExternalStorageDirectory();
           if (appDir == null) return null;
 
-          downloadPath = '${appDir.path}/Download/VidBee';
+          downloadPath = '${appDir.path}/Download/QvaSave';
           if (!await PermissionHelper.isDirectoryWritable(downloadPath)) {
-            AppLogger.error('备用下载目录不可写', downloadPath);
+            AppLogger.error(
+              'Fallback download directory not writable',
+              downloadPath,
+            );
             return null;
           }
-          AppLogger.debug('使用备用下载目录: $downloadPath');
+          AppLogger.debug('Using fallback download directory: $downloadPath');
         } catch (e) {
-          AppLogger.error('创建备用目录失败', e);
+          AppLogger.error('Failed to create fallback directory', e);
           return null;
         }
       }
 
-      AppLogger.debug('开始下载: ${task.url}');
-      AppLogger.debug('下载路径: $downloadPath');
+      AppLogger.debug('Starting download: ${task.url}');
+      AppLogger.debug('Download path: $downloadPath');
 
       final prefs = await SharedPreferences.getInstance();
       final configuredAudioQuality =
@@ -321,9 +339,9 @@ class YtDlpService {
           ) ??
           _defaultAudioQuality;
 
-      // 使用VidBee_前缀 + 视频标题作为文件名，既保留标题又避免问题
-      final outputTemplate = 'VidBee_%(title)s.%(ext)s';
-      AppLogger.debug('输出文件名: $outputTemplate');
+      // 使用QvaSave_前缀 + 视频标题作为文件名，既保留标题又避免问题
+      final outputTemplate = 'QvaSave_%(title)s.%(ext)s';
+      AppLogger.debug('Output filename: $outputTemplate');
 
       // 构建请求选项（与解析共用逻辑：Bilibili/UA/Cookie/Referer 等）
       final built = await _buildRequestOptions(task.url, customUA);
@@ -339,13 +357,15 @@ class YtDlpService {
         customOptions: customOptions,
       );
 
-      AppLogger.debug('下载格式: ${request.format}, 嵌入封面: ${request.embedThumbnail}');
+      AppLogger.debug(
+        'Download format: ${request.format}, embed thumbnail: ${request.embedThumbnail}',
+      );
 
       final result = await _youtubeDL.download(request);
 
       if (result.status == OperationStatus.success) {
         // 优先采用插件返回的真实输出路径；若其为空或仍是模板，则在下载目录中
-        // 按 VidBee_<标题> 安全化匹配。
+        // 按 QvaSave_<标题> 安全化匹配。
         // 切勿把含 %(title)s 的模板路径写回任务/历史。
         final actualPath = await _resolveOutputPath(
           result.outputPath,
@@ -354,7 +374,7 @@ class YtDlpService {
         );
         if (actualPath == null) {
           AppLogger.error(
-            '下载成功但未能解析真实文件路径: '
+            'Download succeeded but failed to resolve the actual file path: '
             'pluginOutput=${result.outputPath}, title=${task.title}, '
             'dir=$downloadPath',
           );
@@ -362,18 +382,18 @@ class YtDlpService {
           // 另一个任务，进而把错误文件写入当前任务历史并误报成功。
           return null;
         }
-        AppLogger.debug('下载成功: $actualPath');
+        AppLogger.debug('Download succeeded: $actualPath');
 
         // 通知系统媒体库扫描新文件（相册可见的关键步骤）
         await MediaScanner.scanFile(actualPath);
 
         return actualPath;
       } else {
-        AppLogger.error('下载失败', result.errorMessage);
+        AppLogger.error('Download failed', result.errorMessage);
         return null;
       }
     } catch (e) {
-      AppLogger.error('下载异常', e);
+      AppLogger.error('Download exception', e);
       return null;
     }
   }
@@ -390,17 +410,15 @@ class YtDlpService {
   ///    避免 yt-dlp 默认将分离流合并为 mkv 导致容器元数据与比例解析异常。
   @visibleForTesting
   static DownloadRequest createDownloadRequest({
-    required vidbee.DownloadTask task,
+    required qvasave.DownloadTask task,
     required String downloadUrl,
     required String downloadPath,
     required String outputTemplate,
     required int configuredAudioQuality,
     Map<String, String>? customOptions,
   }) {
-    final isAudio = task.type == vidbee.DownloadType.audio;
-    final effectiveOptions = <String, String>{
-      ...?customOptions,
-    };
+    final isAudio = task.type == qvasave.DownloadType.audio;
+    final effectiveOptions = <String, String>{...?customOptions};
 
     // 确定下载格式
     String format;
@@ -456,11 +474,11 @@ class YtDlpService {
       }
     }
 
-    // 2. 按 VidBee_<标题> 在下载目录中安全化匹配
+    // 2. 按 QvaSave_<标题> 在下载目录中安全化匹配
     return _findDownloadedFileByTitle(downloadPath, title);
   }
 
-  /// 在下载目录中按 VidBee_<标题> 查找已完成文件（安全化比对）。
+  /// 在下载目录中按 QvaSave_<标题> 查找已完成文件（安全化比对）。
   Future<String?> _findDownloadedFileByTitle(
     String downloadPath,
     String? title,
@@ -489,13 +507,13 @@ class YtDlpService {
       );
       if (matched == null) {
         AppLogger.debug(
-          '按标题未匹配到下载文件: dir=$downloadPath, title=$title, '
+          'No downloaded file matched by title: dir=$downloadPath, title=$title, '
           'candidates=${candidatePaths.length}',
         );
       }
       return matched;
     } catch (e) {
-      AppLogger.error('查找下载文件失败', e);
+      AppLogger.error('Failed to find downloaded file', e);
       return null;
     }
   }
@@ -506,7 +524,7 @@ class YtDlpService {
       final cancelled = await _youtubeDL.cancelDownload(taskId);
       return cancelled;
     } catch (e) {
-      AppLogger.error('取消下载失败', e);
+      AppLogger.error('Failed to cancel download', e);
       return false;
     }
   }
@@ -515,7 +533,10 @@ class YtDlpService {
   Future<YtDlpUpdateResult> updateYtDlp() async {
     final initialized = await initialize();
     if (!initialized) {
-      return const YtDlpUpdateResult(success: false, message: 'yt-dlp 初始化失败');
+      return const YtDlpUpdateResult(
+        success: false,
+        message: 'yt-dlp initialization failed',
+      );
     }
     final currentUpdate = _updateFuture;
     if (currentUpdate != null) return currentUpdate;
@@ -533,9 +554,9 @@ class YtDlpService {
       );
       final success = result.status == OperationStatus.success;
       if (success) {
-        AppLogger.debug('yt-dlp 更新成功: ${result.version}');
+        AppLogger.debug('yt-dlp updated successfully: ${result.version}');
       } else {
-        AppLogger.error('yt-dlp 更新失败', result.errorMessage);
+        AppLogger.error('yt-dlp update failed', result.errorMessage);
       }
       return YtDlpUpdateResult(
         success: success,
@@ -543,7 +564,7 @@ class YtDlpService {
         message: result.errorMessage,
       );
     } catch (e) {
-      AppLogger.error('更新 yt-dlp 失败', e);
+      AppLogger.error('Failed to update yt-dlp', e);
       return YtDlpUpdateResult(success: false, message: e.toString());
     }
   }
@@ -561,7 +582,7 @@ class YtDlpService {
         'python': versionInfo.pythonVersion ?? 'Unknown',
       };
     } catch (e) {
-      AppLogger.error('获取版本信息失败', e);
+      AppLogger.error('Failed to get version info', e);
       return {};
     }
   }
@@ -571,7 +592,7 @@ class YtDlpService {
     if (!_isInitialized) {
       final initialized = await initialize();
       if (!initialized) {
-        return {'success': false, 'error': '初始化失败'};
+        return {'success': false, 'error': 'Initialization failed'};
       }
     }
 
@@ -581,25 +602,25 @@ class YtDlpService {
     try {
       final version = await getVersionInfo();
       result['version'] = version;
-      AppLogger.debug('当前 yt-dlp 版本: ${version['yt-dlp']}');
+      AppLogger.debug('Current yt-dlp version: ${version['yt-dlp']}');
     } catch (e) {
       result['version_error'] = e.toString();
     }
 
     // 2. 尝试解析视频
     try {
-      AppLogger.debug('正在测试解析: $url');
+      AppLogger.debug('Testing parsing: $url');
       final info = await _youtubeDL.getVideoInfo(url);
       result['parse_success'] = true;
       result['title'] = info.title;
       result['duration'] = info.duration;
       result['uploader'] = info.uploader;
       result['formats_count'] = info.formats?.length ?? 0;
-      AppLogger.debug('解析成功: ${info.title}');
+      AppLogger.debug('Parsing succeeded: ${info.title}');
     } catch (e) {
       result['parse_success'] = false;
       result['parse_error'] = e.toString();
-      AppLogger.error('解析失败', e);
+      AppLogger.error('Parsing failed', e);
     }
 
     // 3. 检查是否需要更新
@@ -610,26 +631,26 @@ class YtDlpService {
       result['update_status'] = updateResult.status.toString();
       result['update_version'] = updateResult.version;
       if (updateResult.status == OperationStatus.success) {
-        AppLogger.debug('yt-dlp 已更新到: ${updateResult.version}');
+        AppLogger.debug('yt-dlp updated to: ${updateResult.version}');
       } else {
-        AppLogger.error('yt-dlp 更新失败', updateResult.errorMessage);
+        AppLogger.error('yt-dlp update failed', updateResult.errorMessage);
         result['update_error'] = updateResult.errorMessage;
       }
     } catch (e) {
       result['update_error'] = e.toString();
-      AppLogger.error('更新出错', e);
+      AppLogger.error('Update error', e);
     }
 
     return result;
   }
 
-  /// 转换为 VidBee VideoInfo 格式
-  vidbee.VideoInfo _convertToVidbeeVideoInfo(VideoInfo info) {
+  /// 转换为 QvaSave VideoInfo 格式
+  qvasave.VideoInfo _convertToQvaSaveVideoInfo(VideoInfo info) {
     final formats =
         info.formats
             ?.where((f) => f != null)
             .map(
-              (f) => vidbee.VideoFormat(
+              (f) => qvasave.VideoFormat(
                 formatId: f!.formatId ?? '',
                 ext: f.ext ?? '',
                 width: f.width,
@@ -651,7 +672,7 @@ class YtDlpService {
             .toList() ??
         [];
 
-    return vidbee.VideoInfo(
+    return qvasave.VideoInfo(
       id: info.id ?? '',
       title: info.title ?? '',
       thumbnail: info.thumbnail,
