@@ -20,7 +20,7 @@
 - **⚙️ Full Customization**:
   - Custom download paths and multiple quality options for video/audio.
   - **Adaptive Themes**: Support for Dark, Light, and System modes.
-  - **Multi-language**: Available in English, Chinese, Japanese, and Korean.
+  - **Multi-language**: Available in English and Spanish
   - **Advanced Tools**: Professional Cookie import and Custom User-Agent configuration.
 
 ---
