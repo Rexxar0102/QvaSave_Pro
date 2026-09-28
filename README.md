@@ -11,29 +11,6 @@
 
 ---
 
-### What's New in v2026.08.11.1
-
-- Corrected premature completion events when no usable output file is produced.
-- Prevented concurrent downloads from associating another task's newest file.
-- Released completed queue slots immediately instead of waiting for path metadata.
-- Rejected truncated in-app update APKs and removed partial downloads safely.
-- Hardened WebView login and settings initialization against disposed-page callbacks.
-- Expanded regression coverage for download lifecycle and update integrity.
-
----
-
-### 📸 Screenshots
-
-| Link Parsing | Settings (1) |
-| :---: | :---: |
-| ![Parse Example](parse_example.jpg) | ![Settings 1](settings_1.jpg) |
-
-| Settings (2) | Settings (3) |
-| :---: | :---: |
-| ![Settings 2](settings_2.jpg) | ![Settings 3](settings_3.jpg) |
-
----
-
 ### ✨ Key Features
 
 - **🌍 Global Support**: Powered by `yt-dlp`, supports 1000+ sites including YouTube, TikTok, Instagram, Twitter, and Bilibili.
@@ -86,10 +63,6 @@ For sites like YouTube, the default UA might cause parsing failures. We recommen
 
 ---
 
-### 🤝 Contributing
-
-We welcome any contributions! If you find a bug or have a feature proposal, please submit an [Issue](https://github.com/Rexxar0102/QvaSave_Pro/issues).
-
 ### 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -98,4 +71,3 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) - The powerful download engine
 - [FFmpeg](https://ffmpeg.org/) - The multimedia framework for processing
-- [QvaSave Pro (Desktop)](https://github.com/nexmoe/QvaSave Pro) - The project that inspired the original prototype
