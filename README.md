@@ -1,4 +1,4 @@
-# QvaSave Pro 🐝
+# QvaSave Pro 
 
 <p align="center">
   <img src="https://img.shields.io/github/license/Rexxar0102/QvaSave_Pro?style=flat-square" alt="License">
