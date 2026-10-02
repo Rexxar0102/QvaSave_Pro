@@ -25,6 +25,9 @@ class QvaNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.topCenter,
+      // El FAB sobresale por encima de la barra; sin clip para que el glow
+      // y la separación superior no se recorten.
+      clipBehavior: Clip.none,
       children: [
         Container(
           color: QvaColors.navOverlay,
@@ -69,9 +72,10 @@ class QvaNavBar extends StatelessWidget {
             ],
           ),
         ),
-        // FAB: Add download.
+        // FAB: Add download. Flota separado de la barra (queda por encima
+        // del menú con un hueco visible de unos pocos px).
         Positioned(
-          top: -10,
+          top: -72,
           child: GestureDetector(
             onTap: onAddPressed,
             child: Container(
@@ -80,6 +84,7 @@ class QvaNavBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: QvaColors.oliveFab,
                 borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0x26000000), width: 1),
                 boxShadow: const [
                   BoxShadow(
                     color: QvaColors.glow,

@@ -225,6 +225,7 @@ class AppLocalizations {
   String get noAvailableFormat => _translate('noAvailableFormat');
   String get selectVideoQuality => _translate('selectVideoQuality');
   String get selectAudioQuality => _translate('selectAudioQuality');
+  String get moreOptions => _translate('moreOptions');
   String get highQualityRequiresLogin => _translate('highQualityRequiresLogin');
   String get importCookieFile => _translate('importCookieFile');
   String get importCookieFileHint => _translate('importCookieFileHint');

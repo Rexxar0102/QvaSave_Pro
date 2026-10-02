@@ -201,6 +201,7 @@ class AppLocalizationsEn {
     'noAvailableFormat': 'No available format',
     'selectVideoQuality': 'Select Video Quality',
     'selectAudioQuality': 'Select Audio Quality',
+    'moreOptions': 'More options below',
     'highQualityRequiresLogin':
         '🔒 High definition requires login, please add Cookie in settings',
     'importCookieFile': 'Import Cookie File',

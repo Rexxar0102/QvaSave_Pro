@@ -10,6 +10,7 @@ import '../../core/utils/app_logger.dart';
 import '../../core/utils/permission_helper.dart';
 import '../../core/utils/url_utils.dart';
 import '../../shared/i18n/app_localizations.dart';
+import '../../shared/theme/app_theme.dart';
 
 class AddUrlDialog extends ConsumerStatefulWidget {
   const AddUrlDialog({super.key});
@@ -22,15 +23,38 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
   final _urlController = TextEditingController();
   bool _isAudioOnly = false;
   final CookieService _cookieService = CookieService();
+  // 控制格式列表滚动状态：是否还有更多选项在列表下方。
+  final ScrollController _formatScrollController = ScrollController();
+  bool _showMoreFade = false;
+  // 避免在 build 期间每帧都重新测量；仅在内容变化时重置。
+  bool _formatListMeasured = false;
   // 解析完成后缓存当前域名是否已有 Cookie，避免在格式列表中对每个 chip 反复异步查询
   bool _hasCookieForDomain = false;
   // 解析成功时锁定的 URL；下载时优先使用，避免用户清空输入框后变成 https://
   String? _parsedUrl;
 
   @override
+  void initState() {
+    super.initState();
+    _formatScrollController.addListener(_onFormatListScroll);
+  }
+
+  @override
   void dispose() {
+    _formatScrollController.removeListener(_onFormatListScroll);
+    _formatScrollController.dispose();
     _urlController.dispose();
     super.dispose();
+  }
+
+  /// 监听格式列表滚动位置：在列表末尾时隐藏"更多选项"渐变提示。
+  void _onFormatListScroll() {
+    if (!_formatScrollController.hasClients) return;
+    final position = _formatScrollController.position;
+    final atEnd = position.pixels >= position.maxScrollExtent - 1;
+    if (atEnd != _showMoreFade) {
+      setState(() => _showMoreFade = !atEnd);
+    }
   }
 
   @override
@@ -64,13 +88,16 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
               SwitchListTile(
                 title: Text(loc.audioOnly),
                 value: _isAudioOnly,
-                onChanged: isLoading
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _isAudioOnly = value;
-                        });
-                      },
+onChanged: isLoading
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _isAudioOnly = value;
+                            // 列表内容变化，重新测量是否可滚动
+                            _formatListMeasured = false;
+                            _showMoreFade = false;
+                          });
+                        },
               ),
               if (isLoading) ...[
                 const SizedBox(height: 16),
@@ -193,127 +220,161 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     }
 
     final loc = AppLocalizations.of(context)!;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final panelColor = dark
+        ? const Color(0xFF1B1D19)
+        : const Color(0xFFF3EFE7);
     final url = resolveDownloadUrl(
       parsedUrl: _parsedUrl,
       webpageUrl: videoInfo.webpageUrl,
       inputText: _urlController.text,
     );
     final domain = _cookieService.extractDomain(url);
+    final needsLoginHint =
+        !_hasCookieForDomain && _cookieService.isBilibiliDomain(domain);
+
+    // 列表内容变化后重新测量是否可滚动，决定是否展示底部"更多选项"提示。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _formatListMeasured) return;
+      _formatListMeasured = true;
+      if (!_formatScrollController.hasClients) return;
+      final position = _formatScrollController.position;
+      final canScroll = position.maxScrollExtent > position.minScrollExtent;
+      if (_showMoreFade != canScroll) {
+        setState(() => _showMoreFade = canScroll);
+      }
+    });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          _isAudioOnly ? loc.selectAudioQuality : loc.selectVideoQuality,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: formats.asMap().entries.map((entry) {
-            final index = entry.key;
-            final format = entry.value;
-            final isSelected = selectedFormat?.formatId == format.formatId;
-            // 对于 Bilibili，只有第一个（最高质量）格式需要登录
-            final requiresLogin =
-                _cookieService.isBilibiliDomain(domain) && index == 0;
-            final isDisabled = requiresLogin && !_hasCookieForDomain;
-
-            return FilterChip(
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_getFormatLabel(format, loc)),
-                  if (requiresLogin) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      _hasCookieForDomain ? Icons.verified : Icons.lock,
-                      size: 14,
-                      color: _hasCookieForDomain
-                          ? Colors.green
-                          : Theme.of(context).colorScheme.error,
-                    ),
-                  ],
-                ],
-              ),
-              selected: isSelected,
-              onSelected: isDisabled
-                  ? null
-                  : (selected) {
-                      if (selected) {
-                        ref.read(selectedFormatProvider.notifier).state =
-                            format;
-                      }
-                    },
-            );
-          }).toList(),
-        ),
-        if (!_hasCookieForDomain && _cookieService.isBilibiliDomain(domain))
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              loc.highQualityRequiresLogin,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
+        Row(
+          children: [
+            Icon(
+              _isAudioOnly
+                  ? Icons.music_note_outlined
+                  : Icons.high_quality_outlined,
+              size: 18,
+              color: QvaColors.olive,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                _isAudioOnly
+                    ? loc.selectAudioQuality
+                    : loc.selectVideoQuality,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: QvaColors.olive.withValues(alpha: dark ? 0.25 : 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${formats.length}',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: QvaColors.olive,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: panelColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: dark
+                  ? const Color(0xFF2A2D27)
+                  : const Color(0xFFE6E0D4),
+            ),
           ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 220),
+                child: ListView.builder(
+                  controller: _formatScrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  itemCount: formats.length,
+                  itemBuilder: (context, index) {
+                    final format = formats[index];
+                    final isSelected =
+                        selectedFormat?.formatId == format.formatId;
+                    // 对于 Bilibili，只有第一个（最高质量）格式需要登录
+                    final requiresLogin =
+                        _cookieService.isBilibiliDomain(domain) && index == 0;
+                    final isDisabled = requiresLogin && !_hasCookieForDomain;
+                    return _FormatRow(
+                      key: ValueKey(format.formatId),
+                      format: format,
+                      selected: isSelected,
+                      disabled: isDisabled,
+                      loggedIn: _hasCookieForDomain,
+                      requiresLogin: requiresLogin,
+                      onTap: isDisabled
+                          ? null
+                          : () {
+                              ref.read(selectedFormatProvider.notifier).state =
+                                  format;
+                            },
+                      loc: loc,
+                    );
+                  },
+                ),
+              ),
+              // 底部渐变 + "更多选项"提示，仅有更多内容时才显示
+              if (_showMoreFade)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _MoreOptionsFade(
+                    panelColor: panelColor,
+                    onScrollDown: () {
+                      _formatScrollController.animateTo(
+                        _formatScrollController.position.maxScrollExtent,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    label: loc.moreOptions,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (needsLoginHint) ...[
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 14,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  loc.highQualityRequiresLogin,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
-  }
-
-  String _getFormatLabel(VideoFormat format, AppLocalizations loc) {
-    final parts = <String>[];
-
-    // 优先显示分辨率或码率
-    if (!format.hasVideo) {
-      // 音频格式：优先显示比特率
-      if (format.tbr != null) {
-        parts.add('${format.tbr}k');
-      } else if (format.formatNote != null) {
-        parts.add(format.formatNote!);
-      } else {
-        parts.add(loc.audio);
-      }
-    } else {
-      // 视频格式：显示分辨率和比特率
-      if (format.height != null && format.height! > 0) {
-        parts.add('${format.height}p');
-      } else if (format.width != null &&
-          format.height != null &&
-          format.width! > 0 &&
-          format.height! > 0) {
-        parts.add('${format.width}x${format.height}');
-      } else if (format.formatNote != null) {
-        parts.add(format.formatNote!);
-      }
-      // 添加比特率
-      if (format.tbr != null) {
-        parts.add('${format.tbr}k');
-      }
-    }
-
-    if (format.ext.isNotEmpty) {
-      parts.add(format.ext.toUpperCase());
-    }
-
-    if (format.filesize != null) {
-      parts.add(_formatFileSize(format.filesize!));
-    } else if (format.filesizeApprox != null) {
-      parts.add(_formatFileSize(format.filesizeApprox!));
-    }
-
-    return parts.isEmpty ? format.formatId : parts.join(' • ');
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   Future<void> _parseUrl() async {
@@ -344,6 +405,8 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     setState(() {
       _parsedUrl = null;
       _hasCookieForDomain = false;
+      _formatListMeasured = false;
+      _showMoreFade = false;
     });
 
     final ytDlpService = ref.read(ytDlpServiceProvider);
@@ -516,4 +579,251 @@ class _AddUrlDialogState extends ConsumerState<AddUrlDialog> {
     _parsedUrl = null;
     Navigator.of(context).pop();
   }
+}
+
+/// 单个格式选项行：分辨率/码率 + 扩展名/大小 + 选中状态。
+class _FormatRow extends StatelessWidget {
+  const _FormatRow({
+    super.key,
+    required this.format,
+    required this.selected,
+    required this.disabled,
+    required this.loggedIn,
+    required this.requiresLogin,
+    required this.onTap,
+    required this.loc,
+  });
+
+  final VideoFormat format;
+  final bool selected;
+  final bool disabled;
+  final bool loggedIn;
+  final bool requiresLogin;
+  final VoidCallback? onTap;
+  final AppLocalizations loc;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final title = _buildTitle();
+    final subtitle = _buildSubtitle();
+    final textColor = disabled
+        ? (isDark ? const Color(0xFF70746B) : const Color(0xFF9B988F))
+        : (isDark ? const Color(0xFFEDEDEC) : QvaColors.ink);
+    final subtitleColor = disabled
+        ? (isDark ? const Color(0xFF585C55) : const Color(0xFFB4AFA3))
+        : (isDark ? const Color(0xFF8F8F89) : QvaColors.muted);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      child: Material(
+        color: selected
+            ? QvaColors.olive.withValues(alpha: isDark ? 0.32 : 0.16)
+            : (isDark ? const Color(0xFF262825) : const Color(0xFFFAF7F0)),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: disabled ? null : onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: selected
+                    ? QvaColors.olive
+                    : (isDark
+                          ? const Color(0xFF32352E)
+                          : const Color(0xFFE7E1D4)),
+                width: selected ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  selected ? Icons.check_circle : Icons.circle_outlined,
+                  size: 20,
+                  color: selected
+                      ? QvaColors.olive
+                      : (isDark
+                            ? const Color(0xFF6F7469)
+                            : const Color(0xFFB9B4A8)),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w400,
+                            color: subtitleColor,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (requiresLogin) ...[
+                  const SizedBox(width: 6),
+                  Icon(
+                    loggedIn ? Icons.verified : Icons.lock,
+                    size: 14,
+                    color: loggedIn
+                        ? Colors.green
+                        : (isDark
+                              ? const Color(0xFFD07A68)
+                              : const Color(0xFFD24D3C)),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _buildTitle() {
+    if (!format.hasVideo) {
+      // 音频格式：优先显示比特率
+      if (format.tbr != null) return '${format.tbr}k';
+      if (format.formatNote != null && format.formatNote!.isNotEmpty) {
+        return format.formatNote!;
+      }
+      return loc.audio;
+    }
+    // 视频格式：优先显示分辨率
+    if (format.height != null && format.height! > 0) return '${format.height}p';
+    if (format.width != null &&
+        format.height != null &&
+        format.width! > 0 &&
+        format.height! > 0) {
+      return '${format.width}x${format.height}';
+    }
+    if (format.formatNote != null && format.formatNote!.isNotEmpty) {
+      return format.formatNote!;
+    }
+    return format.formatId;
+  }
+
+  String _buildSubtitle() {
+    final parts = <String>[];
+    if (format.ext.isNotEmpty) {
+      parts.add(format.ext.toUpperCase());
+    }
+    if (format.fps != null && format.fps! > 0) {
+      parts.add('${format.fps}fps');
+    }
+    if (format.filesize != null) {
+      parts.add(_formatBytes(format.filesize!));
+    } else if (format.filesizeApprox != null) {
+      parts.add(_formatBytes(format.filesizeApprox!));
+    }
+    return parts.join('  •  ');
+  }
+}
+
+/// 列表底部"还有更多选项"的渐变遮罩 + 向下箭头提示。
+class _MoreOptionsFade extends StatelessWidget {
+  const _MoreOptionsFade({
+    required this.panelColor,
+    required this.onScrollDown,
+    required this.label,
+  });
+
+  final Color panelColor;
+  final VoidCallback onScrollDown;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 36,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                panelColor.withValues(alpha: 0),
+                panelColor.withValues(alpha: 0.9),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: GestureDetector(
+            onTap: onScrollDown,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF2C2F28)
+                    : const Color(0xFF17181A),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.25),
+                    offset: const Offset(0, 2),
+                    blurRadius: 6,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 16,
+                    color: isDark ? const Color(0xFFEDEDEC) : Colors.white,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? const Color(0xFFEDEDEC) : Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 格式化字节数为可读文本（B / KB / MB / GB）。
+String _formatBytes(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  if (bytes < 1024 * 1024 * 1024) {
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
 }
