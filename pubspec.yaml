@@ -82,4 +82,4 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "../QvaSave Pro/apps/docs/public/icon-512.png"
+  image_path: "ico.png"
