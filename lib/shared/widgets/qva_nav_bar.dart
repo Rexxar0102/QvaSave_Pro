@@ -14,90 +14,149 @@ class QvaNavBar extends StatelessWidget {
     required this.onDestinationSelected,
     required this.items,
     required this.onAddPressed,
+    this.showAddButton = true,
   });
+
+  /// Key de la superficie visible de la barra.
+  static const barSurfaceKey = Key('qva-nav-bar-surface');
+
+  /// Key del botón "+".
+  static const addButtonKey = Key('qva-nav-add-button');
 
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
   final List<QvaNavDestination> items;
   final VoidCallback onAddPressed;
 
+  /// Muestra el FAB "Agregar descarga". Se oculta en pestañas donde no aplica
+  /// (por ejemplo Ajustes).
+  final bool showAddButton;
+
+  /// Altura del botón "+".
+  static const double addButtonSize = 64;
+
+  /// Hueco visible entre el borde inferior del botón "+" y el borde superior de
+  /// la barra, para que se lea como un control aparte y no parte del menú.
+  static const double addButtonGap = 8;
+
+  /// Espacio reservado encima de la barra para alojar el botón "+".
+  ///
+  /// El botón debe quedar dentro de los bounds de este widget: el hit test de
+  /// Flutter solo busca hijos dentro de los bounds del padre, así que un
+  /// `Positioned(top: negativo)` lo deja visible pero inclicable, y ningún
+  /// `Transform` lo arregla porque el `Stack` descarta el toque antes de llegar
+  /// al hijo. Reservar el espacio mantiene el aspecto de "flota sobre la barra"
+  /// y hace que el botón responda de verdad.
+  static const double addButtonReserve =
+      addButtonSize + addButtonGap;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.topCenter,
-      // El FAB sobresale por encima de la barra; sin clip para que el glow
-      // y la separación superior no se recorten.
-      clipBehavior: Clip.none,
       children: [
-        Container(
-          color: QvaColors.navOverlay,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 1,
-                color: Colors.black,
-              ),
-              SizedBox(
-                height: 76,
-                child: Row(
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      Expanded(
-                        child: _NavItem(
-                          destination: items[i],
-                          active: i == currentIndex,
-                          onTap: () => onDestinationSelected(i),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              // Home indicator area.
-              Container(
-                height: 32,
-                alignment: Alignment.center,
-                child: Container(
-                  width: 132,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: QvaColors.ink,
-                    borderRadius: BorderRadius.circular(2),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Hueco transparente para que el botón "+" flote sobre la barra.
+            SizedBox(height: addButtonReserve),
+            Container(
+              key: QvaNavBar.barSurfaceKey,
+              color: QvaColors.navOverlay,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 1,
+                    color: Colors.black,
                   ),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom,
-              ),
-            ],
-          ),
-        ),
-        // FAB: Add download. Flota separado de la barra (queda por encima
-        // del menú con un hueco visible de unos pocos px).
-        Positioned(
-          top: -72,
-          child: GestureDetector(
-            onTap: onAddPressed,
-            child: Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: QvaColors.oliveFab,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0x26000000), width: 1),
-                boxShadow: const [
-                  BoxShadow(
-                    color: QvaColors.glow,
-                    offset: Offset(0, 10),
-                    blurRadius: 24,
-                    spreadRadius: -4,
+                  SizedBox(
+                    height: 76,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < items.length; i++)
+                          Expanded(
+                            child: _NavItem(
+                              destination: items[i],
+                              active: i == currentIndex,
+                              onTap: () => onDestinationSelected(i),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Home indicator area.
+                  Container(
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 132,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: QvaColors.ink,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.bottom,
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.add,
-                color: Color(0xFFF2F2F7),
-                size: 30,
+            ),
+          ],
+        ),
+        // Boton "+": agregar descarga. Flota separado de la barra, con un hueco
+        // visible de 8 px por encima del menú.
+        //
+        // Se mantiene siempre montado para poder animar la ocultacion; cuando
+        // showAddButton es false se oculta y se ignoran los toques para no
+        // dejar un boton invisible que aun responda al tap.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: IgnorePointer(
+              ignoring: !showAddButton,
+              child: AnimatedScale(
+                scale: showAddButton ? 1 : 0,
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutBack,
+                child: AnimatedOpacity(
+                  opacity: showAddButton ? 1 : 0,
+                  duration: const Duration(milliseconds: 150),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onAddPressed,
+                    child: Container(
+                      key: QvaNavBar.addButtonKey,
+                      width: addButtonSize,
+                      height: addButtonSize,
+                      decoration: BoxDecoration(
+                        color: QvaColors.oliveFab,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: const Color(0x26000000),
+                          width: 1,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: QvaColors.glow,
+                            offset: Offset(0, 10),
+                            blurRadius: 24,
+                            spreadRadius: -4,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Color(0xFFF2F2F7),
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

@@ -196,6 +196,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             QvaNavDestination(icon: Icons.history, label: loc.history),
             QvaNavDestination(icon: Icons.tune, label: loc.settings),
           ],
+          // El FAB "Agregar" solo tiene sentido en Inicio e Historial; en
+          // Ajustes se oculta.
+          showAddButton: _selectedIndex != 2,
           onAddPressed: () => _showAddUrlDialog(context),
         ),
       ),
